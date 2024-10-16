@@ -93,7 +93,7 @@ def scrape_words(url, resp):
     the most words and the frequency of each word.
     """
     try:
-        with open('/data/words_stats.json', 'r') as json_file:
+        with open('./data/words_stats.json', 'r') as json_file:
             words_stats = json.load(json_file)
     except (json.decoder.JSONDecodeError, FileNotFoundError):
         words_stats = {
@@ -116,7 +116,7 @@ def scrape_words(url, resp):
     for token in token_list_without_stopwords:
         words_stats['Word_list'][token] = words_stats['Word_list'].get(token, 0) + 1
 
-    with open('/data/words_stats.json', 'w') as json_file:
+    with open('./data/words_stats.json', 'w') as json_file:
         json.dump(words_stats, json_file)
 
 
@@ -130,7 +130,7 @@ def get_page_crawled(link_list):
     of unique pages and subdomains for 'ics.uci.edu'.
     """
     try:
-        with open('/data/page_crawled.json', 'r') as json_file:
+        with open('./data/page_crawled.json', 'r') as json_file:
             page_crawled = json.load(json_file)
     except (json.decoder.JSONDecodeError, FileNotFoundError):
         page_crawled = {
@@ -163,5 +163,5 @@ def get_page_crawled(link_list):
                         if domain == 'ics.uci.edu':
                             page_crawled['Counter']['ics.uci.edu_subdomains'][subdomain] += 1
 
-    with open('/data/page_crawled.json', 'w') as json_file:
+    with open('./data/page_crawled.json', 'w') as json_file:
         json.dump(page_crawled, json_file)
