@@ -116,6 +116,9 @@ def scrape_words(url, resp):
     for token in token_list_without_stopwords:
         words_stats['Word_list'][token] = words_stats['Word_list'].get(token, 0) + 1
 
+    sorted_words = sorted(words_stats['Word_list'].items(), key=lambda item: item[1], reverse=True)
+    words_stats['Counter']['50_Most_Common_Words'] = dict(sorted_words[:50])
+
     with open('./data/words_stats.json', 'w') as json_file:
         json.dump(words_stats, json_file)
 
