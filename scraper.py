@@ -2,9 +2,11 @@ import re
 
 from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
-from helper import get_page_crawled, scrape_words, check_status_code_correct_crawl
+from helper import Helper
 from constants import VALID_URLS, BLACKLISTED_URLS, MAX_HTTP_BYTES_SIZE
 
+
+helper = Helper()
 
 
 def scraper(url, resp):
@@ -13,9 +15,9 @@ def scraper(url, resp):
 
     # Check resp status between 2xx : Success & 3xx : Redirection
     # Check if the response has data and is less than MAX_HTTP_BYTES_SIZE
-    if check_status_code_correct_crawl(resp):
-        get_page_crawled(valid_links)
-        scrape_words(url, resp)
+    if helper.check_status_code_correct_crawl(resp):
+        helper.get_page_crawled(valid_links)
+        helper.scrape_words(url, resp)
 
     return valid_links
 
@@ -35,7 +37,7 @@ def extract_next_links(url, resp):
 
     # Check resp status between 2xx : Success & 3xx : Redirection
     # Check if the response has data and is less than MAX_HTTP_BYTES_SIZE
-    if check_status_code_correct_crawl(resp):
+    if helper.check_status_code_correct_crawl(resp):
         parsed = urlparse(url)
         host = f"https://{parsed.netloc}"
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
