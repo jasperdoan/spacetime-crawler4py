@@ -1,9 +1,25 @@
 import re
-from urllib.parse import urlparse
+
+from urllib.parse import urlparse, urldefrag, urljoin
+from bs4 import BeautifulSoup
+from helper import get_page_crawled, scrape_words, check_status_code_correct_crawl
+from constants import VALID_URLS, BLACKLISTED_URLS, MAX_HTTP_BYTES_SIZE
+
+
 
 def scraper(url, resp):
     links = extract_next_links(url, resp)
-    return [link for link in links if is_valid(link)]
+    valid_links = [link for link in links if is_valid(link)]
+
+    # Check resp status between 2xx : Success & 3xx : Redirection
+    # Check if the response has data and is less than MAX_HTTP_BYTES_SIZE
+    if check_status_code_correct_crawl(resp):
+        get_page_crawled(valid_links)
+        scrape_words(url, resp)
+
+    return valid_links
+
+
 
 def extract_next_links(url, resp):
     # Implementation required.
@@ -15,7 +31,25 @@ def extract_next_links(url, resp):
     #         resp.raw_response.url: the url, again
     #         resp.raw_response.content: the content of the page!
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
-    return list()
+    next_link = []
+
+    # Check resp status between 2xx : Success & 3xx : Redirection
+    # Check if the response has data and is less than MAX_HTTP_BYTES_SIZE
+    if check_status_code_correct_crawl(resp):
+        parsed = urlparse(url)
+        host = f"https://{parsed.netloc}"
+        soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
+
+        next_link = [
+            urldefrag(urljoin(host, link['href']))[0]
+            for link in soup.find_all('a', href=True)
+        ]
+    else:
+        print(f"Status Code: {resp.status} is not between 200 - 399 / No data / Size > {MAX_HTTP_BYTES_SIZE}")
+
+    return next_link
+
+
 
 def is_valid(url):
     # Decide whether to crawl this url or not. 
@@ -25,16 +59,26 @@ def is_valid(url):
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
             return False
-        return not re.match(
+
+        if not any(domain in parsed.netloc for domain in VALID_URLS):
+            return False
+
+        if any(bl in url for bl in BLACKLISTED_URLS):
+            return False
+
+        invalid_extensions = (
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpeg|ram|m4v|mkv|ogg|ogv|pdf"
-            + r"|ps|eps|tex|ppt|pptx|doc|docx|xls|xlsx|names"
+            + r"|wav|avi|mov|mpg|mpeg|ram|m4v|mkv|ogg|ogv|pdf|bam|sam"
+            + r"|ps|eps|tex|ppt|ppsx|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1"
+            + r"|epub|dll|cnf|tgz|sha1|odc|scm"
             + r"|thmx|mso|arff|rtf|jar|csv"
-            + r"|rm|smil|wmv|swf|wma|zip|rar|gz)$", parsed.path.lower())
+            + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
+        )
+        
+        return not re.match(invalid_extensions, parsed.path.lower())
 
     except TypeError:
-        print ("TypeError for ", parsed)
+        print(f"TypeError for {parsed}")
         raise
