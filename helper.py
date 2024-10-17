@@ -95,14 +95,21 @@ class Helper:
                 'Full_Link_Lists':{}})
 
         for link in link_list:
+            # Split up url into parts
             domain, subdomain, path = parse_url(link)
 
+            # Add any new subdomains for uci.edu domain
             if domain == 'ics.uci.edu' and subdomain != 'www':
                 page_crawled['Stats']['ICS_Subdomains'][f'{subdomain}.{domain}'] = page_crawled['Stats']['ICS_Subdomains'].get(subdomain, 0) + 1
 
+            # If not visited before, it is another unique page
             if link not in page_crawled['Full_Link_Lists']:
-                page_crawled['Full_Link_Lists'][link] = 1
                 page_crawled['Stats']['Unique_Pages'] += 1
+            
+            # Keep track of all visited links, and its freq
+            page_crawled['Full_Link_Lists'][link] = page_crawled['Full_Link_Lists'].get(link, 0) + 1
 
-        
+        # Sort subdomains ordered alphabetically
+        page_crawled['Stats']['ICS_Subdomains'] = dict(sorted(page_crawled['Stats']['ICS_Subdomains'].items()))
+
         write_json('./data/page_crawled.json', page_crawled)

@@ -4,20 +4,28 @@ from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
 from helper import Helper
 from constants import VALID_URLS, BLACKLISTED_URLS, MAX_HTTP_BYTES_SIZE
-
+from json_utils import load_or_initialize_json, write_json
 
 helper = Helper()
 
 
 def scraper(url, resp):
-    links = extract_next_links(url, resp)
-    valid_links = [link for link in links if is_valid(link)]
+    link_dump = load_or_initialize_json('./data/link_dump.json', {'Legal': {}, 'Removed': {}})
+    valid_links = []
 
-    # Check resp status between 2xx : Success & 3xx : Redirection
-    # Check if the response has data and is less than MAX_HTTP_BYTES_SIZE
+    links = extract_next_links(url, resp)
+    
+    for link in links:
+        validity, reason = is_valid(link)
+        if validity:
+            valid_links.append(link)
+        link_dump['Legal' if validity else 'Removed'][link] = reason
+
     if helper.check_status_code_correct_crawl(resp):
         helper.get_page_crawled(valid_links)
         helper.scrape_words(url, resp)
+
+    write_json('./data/link_dump.json', link_dump)
 
     return valid_links
 
@@ -35,22 +43,18 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     next_link = []
 
-    # Check resp status between 2xx : Success & 3xx : Redirection
-    # Check if the response has data and is less than MAX_HTTP_BYTES_SIZE
     if helper.check_status_code_correct_crawl(resp):
         parsed = urlparse(url)
         host = f"https://{parsed.netloc}"
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
+        # Defrag links
         for link in soup.find_all('a', href=True):
             link_defrag = urldefrag(urljoin(host, link['href']))[0]
             # clean_link = link_defrag.split('?')[0]
             next_link.append(link_defrag)
-
-        # print("\n\n\n\n", next_link, "\n\n\n\n")
-
     else:
-        print(f"Status Code: {resp.status} is not between 200 - 399 / No data / Size > {MAX_HTTP_BYTES_SIZE}")
+        print(f"\tStatus Code: {resp.status} is not between 200 - 399 / No data / Size > {MAX_HTTP_BYTES_SIZE}")
 
     return next_link
 
@@ -63,13 +67,13 @@ def is_valid(url):
     try:
         parsed = urlparse(url)
         if parsed.scheme not in set(["http", "https"]):
-            return False
+            return False, f"Does not follow http(s) scheme"
 
         if not any(domain in parsed.netloc for domain in VALID_URLS):
-            return False
+            return False, f"Does not follow domains and paths mentioned in the spec"
 
         if any(bl in url for bl in BLACKLISTED_URLS):
-            return False
+            return False, f"Is on the blacklist"
 
         invalid_extensions = (
             r".*\.(css|js|bmp|gif|jpe?g|ico"
@@ -81,8 +85,10 @@ def is_valid(url):
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
         )
+
+        valid_link = re.match(invalid_extensions, parsed.path.lower())
         
-        return not re.match(invalid_extensions, parsed.path.lower())
+        return not valid_link, f"Has invalid extensions" if valid_link else f"OK"
 
     except TypeError:
         print(f"TypeError for {parsed}")
