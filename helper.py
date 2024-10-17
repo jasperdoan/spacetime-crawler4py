@@ -41,7 +41,7 @@ class Helper:
         words_stats = load_or_initialize_json(
             './data/words_stats.json', 
             {
-                'Counter': {
+                'Stats': {
                     'Longest_Page_(words)': {}, 
                     '50_Most_Common_Words': {}
                     }, 
@@ -66,11 +66,11 @@ class Helper:
 
         # Sort the URL_list by the number of words in descending order and update the longest page
         sorted_url_list = sorted(words_stats['URL_list'].items(), key=lambda item: item[1], reverse=True)
-        words_stats['Counter']['Longest_Page_(words)'] = {sorted_url_list[0][0]: sorted_url_list[0][1]}
+        words_stats['Stats']['Longest_Page_(words)'] = {sorted_url_list[0][0]: sorted_url_list[0][1]}
 
         # Sort the word list by frequency and save the 50 most common words
         sorted_words = sorted(words_stats['Word_list'].items(), key=lambda item: item[1], reverse=True)
-        words_stats['Counter']['50_Most_Common_Words'] = dict(sorted_words[:50])
+        words_stats['Stats']['50_Most_Common_Words'] = dict(sorted_words[:50])
 
         # Save the all statistics to 'words_stats.json'
         write_json('./data/words_stats.json', words_stats)
@@ -89,39 +89,16 @@ class Helper:
         page_crawled = load_or_initialize_json(
             './data/page_crawled.json', 
             {
-                'Counter': {
-                    'Unique_pages': 0, 
-                    'ics.uci.edu_subdomains': {}}})
+                'Stats': {
+                    'Unique_Pages': 0, 
+                    'ICS_Subdomains': {}}})
 
 
-
-        # OUTDATED
-        # ====================================================================================================
-        # How many subdomains did you find in the uci.edu domain? Submit the list of subdomains ordered alphabetically and the number of unique pages detected in each subdomain. The content of this list should be lines containing subdomain, number
         for link in link_list:
             domain, subdomain, path = parse_url(link)
+            page_crawled['Stats']['Unique_Pages'] += 1
 
-            if domain not in page_crawled:
-                page_crawled[domain] = [{subdomain: [path]}]
-                page_crawled['Counter']['Unique_pages'] += 1
-                if domain == 'ics.uci.edu':
-                    page_crawled['Counter']['ics.uci.edu_subdomains'][subdomain] = 1
-            else:
-                subdomain_found = any(subdomain in nested_dict for nested_dict in page_crawled[domain])
-                if not subdomain_found:
-                    page_crawled[domain].append({subdomain: [path]})
-                    page_crawled['Counter']['Unique_pages'] += 1
-                    if domain == 'ics.uci.edu':
-                        page_crawled['Counter']['ics.uci.edu_subdomains'][subdomain] = 1
-                else:
-                    for sub in page_crawled[domain]:
-                        if subdomain in sub and path not in sub[subdomain]:
-                            sub[subdomain].append(path)
-                            page_crawled['Counter']['Unique_pages'] += 1
-                            if domain == 'ics.uci.edu':
-                                page_crawled['Counter']['ics.uci.edu_subdomains'][subdomain] += 1
-        # ====================================================================================================
-
-
-
+            if domain == 'ics.uci.edu' and subdomain != 'www':
+                page_crawled['Stats']['ICS_Subdomains'][f'{subdomain}.{domain}'] = page_crawled['Stats']['ICS_Subdomains'].get(subdomain, 0) + 1
+        
         write_json('./data/page_crawled.json', page_crawled)

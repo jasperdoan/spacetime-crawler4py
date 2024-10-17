@@ -44,8 +44,14 @@ BLACKLISTED_URLS = {
     "https://www.informatics.uci.edu/very-top-footer-menu-items/news/page",
     "https://cbcl.ics.uci.edu/wgEncodeBroadHistone",
     "http://computableplant.ics.uci.edu/alphasite/index-challenge.html",
-    "swiki.ics.uci.edu", 
-    "wiki.ics.uci.edu", 
+    "https://wiki.ics.uci.edu/doku.php",
+    "https://swiki.ics.uci.edu/doku.php",
+    "https://evoke.ics.uci.edu/",
+    "https://grape.ics.uci.edu/",
+    "https://wics.ics.uci.edu/",
+    "https://www.ics.uci.edu/doku.php",
+    "https://intranet.ics.uci.edu/doku.php",
+    "https://cbcl.ics.uci.edu/doku.php",
     "gitlab.ics.uci.edu"
 }
 

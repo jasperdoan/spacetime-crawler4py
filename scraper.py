@@ -42,10 +42,13 @@ def extract_next_links(url, resp):
         host = f"https://{parsed.netloc}"
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
 
-        next_link = [
-            urldefrag(urljoin(host, link['href']))[0]
-            for link in soup.find_all('a', href=True)
-        ]
+        for link in soup.find_all('a', href=True):
+            link_defrag = urldefrag(urljoin(host, link['href']))[0]
+            # clean_link = link_defrag.split('?')[0]
+            next_link.append(link_defrag)
+
+        # print("\n\n\n\n", next_link, "\n\n\n\n")
+
     else:
         print(f"Status Code: {resp.status} is not between 200 - 399 / No data / Size > {MAX_HTTP_BYTES_SIZE}")
 
