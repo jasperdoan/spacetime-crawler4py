@@ -91,14 +91,18 @@ class Helper:
             {
                 'Stats': {
                     'Unique_Pages': 0, 
-                    'ICS_Subdomains': {}}})
-
+                    'ICS_Subdomains': {}},
+                'Full_Link_Lists':{}})
 
         for link in link_list:
             domain, subdomain, path = parse_url(link)
-            page_crawled['Stats']['Unique_Pages'] += 1
 
             if domain == 'ics.uci.edu' and subdomain != 'www':
                 page_crawled['Stats']['ICS_Subdomains'][f'{subdomain}.{domain}'] = page_crawled['Stats']['ICS_Subdomains'].get(subdomain, 0) + 1
+
+            if link not in page_crawled['Full_Link_Lists']:
+                page_crawled['Full_Link_Lists'][link] = 1
+                page_crawled['Stats']['Unique_Pages'] += 1
+
         
         write_json('./data/page_crawled.json', page_crawled)
