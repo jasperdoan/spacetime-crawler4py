@@ -100,7 +100,8 @@ class Helper:
 
             # Add any new subdomains for uci.edu domain
             if domain == 'ics.uci.edu' and subdomain != 'www':
-                page_crawled['Stats']['ICS_Subdomains'][f'{subdomain}.{domain}'] = page_crawled['Stats']['ICS_Subdomains'].get(subdomain, 0) + 1
+                full_subdomain = f'{subdomain}.{domain}'
+                page_crawled['Stats']['ICS_Subdomains'][full_subdomain] = page_crawled['Stats']['ICS_Subdomains'].get(full_subdomain, 0) + 1
 
             # If not visited before, it is another unique page
             if link not in page_crawled['Full_Link_Lists']:
