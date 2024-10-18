@@ -6,6 +6,26 @@ VALID_URLS = {
     "today.uci.edu/department/information_computer_sciences/"
     }
 
+BLACKLISTED_URLS = {
+    "wics.ics.uci.edu/events/",
+    "wics.ics.uci.edu/category/news/",
+    "ngs.ics.uci.edu/blog/page",
+    "ngs.ics.uci.edu/category",
+    "ngs.ics.uci.edu/tag/",
+    "ngs.ics.uci.edu/author/",
+    "isg.ics.uci.edu/events",
+    "ics.uci.edu/?",
+    "ics.uci.edu?",
+    "ics.uci.edu/events",
+    "evoke.ics.uci.edu",
+    "grape.ics.uci.edu",
+    "wiki.ics.uci.edu",
+    "swiki.ics.uci.edu",
+    "intranet.ics.uci.edu",
+    "cbcl.ics.uci.edu",
+    "gitlab.ics.uci.edu"
+    }
+
 STOP_WORDS = {
     'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 
     "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 
@@ -25,22 +45,4 @@ STOP_WORDS = {
     "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves'
     }
 
-BLACKLISTED_URLS = {
-    "wics.ics.uci.edu/events/",
-    "ics.uci.edu/events",
-    "evoke.ics.uci.edu",
-    "grape.ics.uci.edu",
-    "wiki.ics.uci.edu",
-    "swiki.ics.uci.edu",
-    "intranet.ics.uci.edu",
-    "cbcl.ics.uci.edu",
-    "gitlab.ics.uci.edu"
-}
-
-ALPHANUMERIC = {
-    "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m",
-    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z", 
-    "1", "2", "3", "4", "5", "6", "7", "8", "9", "0"
-    }
-
-MAX_HTTP_BYTES_SIZE = 10000000  # 10MB
+MAX_HTTP_BYTES_SIZE = 5000000  # 5 MB
