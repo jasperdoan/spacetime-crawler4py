@@ -10,8 +10,21 @@ helper = Helper()
 
 
 def scraper(url, resp):
-    link_dump = load_or_initialize_json('./data/link_dump.json', {'Legal': {}, 'Removed': {}})
+    link_dump = load_or_initialize_json('./data/link_dump.json', {'Seed': {'Good': {}, 'Bad': {}}, 'Legal': {}, 'Removed': {}})
     valid_links = []
+
+    # Set seed page, if not already visited. Skip if already visited
+    if url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']:
+        print(f"\tSeed page already visited, skipping\n")
+        return []
+    
+    # Check if seed page is valid, if not log it and skip
+    seed_valid, seed_reason = is_valid(url)
+    link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
+    if not seed_valid:
+        print(f"\tSeed page is not valid, skipping\n")
+        write_json('./data/link_dump.json', link_dump)
+        return []
 
     # Grab links within seed page
     links = extract_next_links(url, resp)
@@ -56,7 +69,7 @@ def extract_next_links(url, resp):
             # clean_link = link_defrag.split('?')[0]
             next_link.append(link_defrag)
     else:
-        print(f"\tStatus Code: {resp.status} is not between 200 - 399 / No data / Size > {MAX_HTTP_BYTES_SIZE}")
+        print(f"\tStatus Code: {resp.status} is not between 200 - 399 | No data | Size > {MAX_HTTP_BYTES_SIZE//1000000} MB\n")
 
     return next_link
 
@@ -88,7 +101,7 @@ def is_valid(url):
             + r"|ps|eps|tex|ppt|ppsx|pptx|doc|docx|xls|xlsx|names"
             + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
             + r"|epub|dll|cnf|tgz|sha1|odc|scm"
-            + r"|thmx|mso|arff|rtf|jar|csv"
+            + r"|thmx|mso|arff|rtf|jar|csv|apk"
             + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
         )
         invalid_link = re.match(extensions, parsed.path.lower())

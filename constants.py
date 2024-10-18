@@ -26,32 +26,14 @@ STOP_WORDS = {
     }
 
 BLACKLISTED_URLS = {
-    "today.uci.edu/department/information_computer_sciences/calendar",
+    "wics.ics.uci.edu/events/",
     "ics.uci.edu/events",
-    "ngs.ics.uci.edu/blog/page",
-    "ngs.ics.uci.edu/category",
-    "ngs.ics.uci.edu/tag/",
-    "ngs.ics.uci.edu/author/",
-    "isg.ics.uci.edu/events",
-    "ics.uci.edu/publications",
-    "ics.uci.edu/?",
-    "ics.uci.edu?",
-    "informatics.uci.edu/page",
-    "informatics.uci.edu/very-top-footer-menu-items/news/page",
-    "cbcl.ics.uci.edu/wgEncodeBroadHistone",
-    "computableplant.ics.uci.edu/alphasite/index-challenge.html",
     "evoke.ics.uci.edu",
     "grape.ics.uci.edu",
-    "wics.ics.uci.edu/events/",
-    "wics.ics.uci.edu/a/language.php",
-    "wics.ics.uci.edu/language.php",
-    "wics.ics.uci.edu/recover/initiate",
-    "wics.ics.uci.edu",
-    "ics.uci.edu/doku.php",
-    "wiki.ics.uci.edu/doku.php",
-    "swiki.ics.uci.edu/doku.php",
-    "intranet.ics.uci.edu/doku.php",
-    "cbcl.ics.uci.edu/doku.php",
+    "wiki.ics.uci.edu",
+    "swiki.ics.uci.edu",
+    "intranet.ics.uci.edu",
+    "cbcl.ics.uci.edu",
     "gitlab.ics.uci.edu"
 }
 
