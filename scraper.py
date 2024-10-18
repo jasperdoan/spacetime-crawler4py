@@ -13,18 +13,20 @@ def scraper(url, resp):
     link_dump = load_or_initialize_json('./data/link_dump.json', {'Legal': {}, 'Removed': {}})
     valid_links = []
 
+    # Grab links within seed page
     links = extract_next_links(url, resp)
     
     for link in links:
-        validity, reason = is_valid(link)
-        if validity:
+        validity, reason = is_valid(link)                               # Check if link is "valid"
+        if validity:                                                    # If it is add it into valid links
             valid_links.append(link)
-        link_dump['Legal' if validity else 'Removed'][link] = reason
+        link_dump['Legal' if validity else 'Removed'][link] = reason    # Log into link dump logs
 
     if helper.check_status_code_correct_crawl(resp):
-        helper.get_page_crawled(valid_links)
-        helper.scrape_words(url, resp)
+        helper.get_page_crawled(valid_links)                            # Start page crawl
+        helper.scrape_words(url, resp)                                  # Scape words within page
 
+    # Logs legal/illegal url into json file
     write_json('./data/link_dump.json', link_dump)
 
     return valid_links
@@ -66,16 +68,20 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+        # Check if url follows http(s) scheme
         if parsed.scheme not in set(["http", "https"]):
             return False, f"Does not follow http(s) scheme"
 
+        # Check if url is within given specs (allowed links)
         if not any(domain in parsed.netloc for domain in VALID_URLS):
             return False, f"Does not follow domains and paths mentioned in the spec"
 
+        # Check if its within black listed urls
         if any(bl in url for bl in BLACKLISTED_URLS):
             return False, f"Is on the blacklist"
 
-        invalid_extensions = (
+        # Illegal file extensions
+        extensions = (
             r".*\.(css|js|bmp|gif|jpe?g|ico"
             + r"|png|tiff?|mid|mp2|mp3|mp4"
             + r"|wav|avi|mov|mpg|mpeg|ram|m4v|mkv|ogg|ogv|pdf|bam|sam"
@@ -85,10 +91,9 @@ def is_valid(url):
             + r"|thmx|mso|arff|rtf|jar|csv"
             + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
         )
-
-        valid_link = re.match(invalid_extensions, parsed.path.lower())
+        invalid_link = re.match(extensions, parsed.path.lower())
         
-        return not valid_link, f"Has invalid extensions" if valid_link else f"OK"
+        return not invalid_link, f"OK" if not invalid_link else f"Has invalid extensions"
 
     except TypeError:
         print(f"TypeError for {parsed}")
