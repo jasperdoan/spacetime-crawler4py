@@ -81,6 +81,11 @@ def is_valid(url):
     # There are already some conditions that return False.
     try:
         parsed = urlparse(url)
+
+        # [Edge case] If inside netloc, there's a space, it's invalid
+        if ' ' in parsed.netloc:
+            return False, f"Has spaces in the netloc"
+
         # Check if url follows http(s) scheme
         if parsed.scheme not in set(["http", "https"]):
             return False, f"Does not follow http(s) scheme"

@@ -14,11 +14,13 @@
 
 [x] Fix unique pages count and subdomain count
 
-[ ] Fix Largest page is currently https://ics.uci.edu/~seal/projects/deldroid/ArchManager.apk which is not correct
+[x] Fix Largest page is currently https://ics.uci.edu/~seal/projects/deldroid/ArchManager.apk which is not correct
+
+[x] Some url has ' ' spaces in them, need to remove them
 
 [ ] Check if crawler fell into any traps
 
 [ ] What are large files (in MB?), especially if they have low information value (?)
 
-[ ] Want to fix reading in urls such as http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018 where its still a pdf file but re doesn't catch it
+[ ] (Not sure if this is the right call but) Want to fix reading in urls such as http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018 where its still a pdf file but re doesn't catch it. Are we supposed to read in pdf uploads? Bc some have paths like /pdf/, /doc/, /uploads/, so if not then we should fix this in is_valid()
 
