@@ -1,10 +1,16 @@
 from bs4 import BeautifulSoup
-from constants import STOP_WORDS, MAX_HTTP_BYTES_SIZE, PAGE_CRAWLED_PATH, WORDS_STATS_PATH
+from constants import (
+    STOP_WORDS, 
+    MAX_HTTP_BYTES_SIZE, 
+    WORDS_STATS_PATH,
+    PAGE_CRAWLED_PATH, 
+    WORDS_STATS_STRUCTURE,
+    PAGES_CRAWLED_STRUCTURE)
 from json_utils import load_or_initialize_json, write_json
 from parser_utils import set_up_ssl, download_nltk_library, tokenize, parse_url
 
 
-class Helper:
+class DataCrawler:
 
     def check_status_code_correct_crawl(self, resp):
         """
@@ -38,20 +44,10 @@ class Helper:
         the most words and the frequency of each word.
         """
         # Load/Init the 'words_stats.json' file
-        words_stats = load_or_initialize_json(
-            WORDS_STATS_PATH, 
-            {
-                'Stats': {
-                    'Longest_Page_(words)': {}, 
-                    '50_Most_Common_Words': {}
-                    }, 
-                'URL_list': {},
-                'Word_list': {}})
+        words_stats = load_or_initialize_json(WORDS_STATS_PATH, WORDS_STATS_STRUCTURE)
 
-        sort_args = {
-            'key': lambda item: item[1],
-            'reverse': True
-        }
+        # Sort arguments for sorting the URL list and word list
+        sort_args = {'key': lambda item: item[1], 'reverse': True}
         
         # Download the NLTK 'wordnet' library if it is not already present
         # Parse and extract data from HTML tags using BeautifulSoup
@@ -95,14 +91,7 @@ class Helper:
         of unique pages and subdomains for 'ics.uci.edu'.
         """
         # Init/Update the 'page_crawled.json' file with the new links
-        pg = load_or_initialize_json(
-            PAGE_CRAWLED_PATH, 
-            {
-                'Unique': {
-                    'Pages': 0, 
-                    'ICS_Subdomains': {}},
-                'Subdomains_List': {},
-                'Link_List': {}})
+        pgc = load_or_initialize_json(PAGE_CRAWLED_PATH, PAGES_CRAWLED_STRUCTURE)
 
         for link in link_list:
             # Split up url into parts
@@ -113,27 +102,27 @@ class Helper:
             ics_domain_condition = domain == 'ics.uci.edu' and subdomain != 'www'
 
             # If subdomain does not exist already, initialize it
-            if ics_domain_condition and subdomain not in pg['Subdomains_List']:
-                pg['Subdomains_List'][subdomain] = {domain_path: 1}
-                pg['Unique']['ICS_Subdomains'][full_subdomain] = 1
+            if ics_domain_condition and subdomain not in pgc['Subdomains_List']:
+                pgc['Subdomains_List'][subdomain] = {domain_path: 1}
+                pgc['Unique']['ICS_Subdomains'][full_subdomain] = 1
 
             # Otherwise, update the subdomain and domain path
             elif ics_domain_condition:
-                visited = domain_path in pg['Subdomains_List'][subdomain]
+                visited = domain_path in pgc['Subdomains_List'][subdomain]
 
                 # If domain path has not been visited, add it to the subdomain list
                 if not visited:
-                    pg['Subdomains_List'][subdomain][domain_path] = 1
-                    pg['Unique']['ICS_Subdomains'][full_subdomain] = pg['Unique']['ICS_Subdomains'].get(full_subdomain, 0) + 1
+                    pgc['Subdomains_List'][subdomain][domain_path] = 1
+                    pgc['Unique']['ICS_Subdomains'][full_subdomain] = pgc['Unique']['ICS_Subdomains'].get(full_subdomain, 0) + 1
 
                 # Else, already visited, just increment the count
                 else:
-                    pg['Subdomains_List'][subdomain][domain_path] += 1
+                    pgc['Subdomains_List'][subdomain][domain_path] += 1
             
-            pg['Unique']['Pages'] += 1 if without_scheme not in pg['Link_List'] else 0
-            pg['Link_List'][without_scheme] = pg['Link_List'].get(without_scheme, 0) + 1
+            pgc['Unique']['Pages'] += 1 if without_scheme not in pgc['Link_List'] else 0
+            pgc['Link_List'][without_scheme] = pgc['Link_List'].get(without_scheme, 0) + 1
 
         # Sort subdomains ordered alphabetically
-        pg['Unique']['ICS_Subdomains'] = dict(sorted(pg['Unique']['ICS_Subdomains'].items()))
+        pgc['Unique']['ICS_Subdomains'] = dict(sorted(pgc['Unique']['ICS_Subdomains'].items()))
 
-        write_json(PAGE_CRAWLED_PATH, pg)
+        write_json(PAGE_CRAWLED_PATH, pgc)

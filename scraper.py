@@ -2,15 +2,22 @@ import re
 
 from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
-from helper import Helper
-from constants import VALID_URLS, BLACKLISTED_URLS, MAX_HTTP_BYTES_SIZE, LINK_DUMP_PATH
+from data_crawler import DataCrawler
+from constants import (
+    VALID_URLS, 
+    BLACKLISTED_URLS, 
+    MAX_HTTP_BYTES_SIZE, 
+    LINK_DUMP_PATH, 
+    FILE_EXTENSIONS,
+    LINK_DUMP_STRUCTURE)
 from json_utils import load_or_initialize_json, write_json
 
-helper = Helper()
+
+dc = DataCrawler()
 
 
 def scraper(url, resp):
-    link_dump = load_or_initialize_json(LINK_DUMP_PATH, {'Seed': {'Good': {}, 'Bad': {}}, 'Legal': {}, 'Removed': {}})
+    link_dump = load_or_initialize_json(LINK_DUMP_PATH, LINK_DUMP_STRUCTURE)
     valid_links = []
 
     # Set seed page, if not already visited. Skip if already visited
@@ -35,9 +42,9 @@ def scraper(url, resp):
             valid_links.append(link)
         link_dump['Legal' if validity else 'Removed'][link] = reason    # Log into link dump logs
 
-    if helper.check_status_code_correct_crawl(resp):
-        helper.get_page_crawled(valid_links)                            # Start page crawl
-        helper.scrape_words(url, resp)                                  # Scape words within page
+    if dc.check_status_code_correct_crawl(resp):
+        dc.get_page_crawled(valid_links)                            # Start page crawl
+        dc.scrape_words(url, resp)                                  # Scape words within page
 
     # Logs legal/illegal url into json file
     write_json(LINK_DUMP_PATH, link_dump)
@@ -58,7 +65,7 @@ def extract_next_links(url, resp):
     # Return a list with the hyperlinks (as strings) scrapped from resp.raw_response.content
     next_link = []
 
-    if helper.check_status_code_correct_crawl(resp):
+    if dc.check_status_code_correct_crawl(resp):
         parsed = urlparse(url)
         host = f"https://{parsed.netloc}"
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
@@ -99,17 +106,7 @@ def is_valid(url):
             return False, f"Is on the blacklist"
 
         # Illegal file extensions
-        extensions = (
-            r".*\.(css|js|bmp|gif|jpe?g|ico"
-            + r"|png|tiff?|mid|mp2|mp3|mp4"
-            + r"|wav|avi|mov|mpg|mpeg|ram|m4v|mkv|ogg|ogv|pdf|bam|sam"
-            + r"|ps|eps|tex|ppt|ppsx|pptx|doc|docx|xls|xlsx|names"
-            + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
-            + r"|epub|dll|cnf|tgz|sha1|odc|scm"
-            + r"|thmx|mso|arff|rtf|jar|csv|apk"
-            + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
-        )
-        invalid_link = re.match(extensions, parsed.path.lower())
+        invalid_link = re.match(FILE_EXTENSIONS, parsed.path.lower())
         
         return not invalid_link, f"OK" if not invalid_link else f"Has invalid extensions"
 

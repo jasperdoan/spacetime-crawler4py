@@ -1,3 +1,4 @@
+# URL CONSTANTS
 VALID_URLS = {
     ".ics.uci.edu", 
     ".cs.uci.edu", 
@@ -45,9 +46,36 @@ STOP_WORDS = {
     "you'd", "you'll", "you're", "you've", 'your', 'yours', 'yourself', 'yourselves'
     }
 
+
+
+# SIZE CONSTANTS
 MAX_HTTP_BYTES_SIZE = 5000000  # 5 MB
 
+
+
+# PATH CONSTANTS
 DATA_DIR = './data'
 LINK_DUMP_PATH = f'{DATA_DIR}/link_dump.json'
 PAGE_CRAWLED_PATH = f'{DATA_DIR}/page_crawled.json'
 WORDS_STATS_PATH = f'{DATA_DIR}/words_stats.json'
+
+
+
+# REGEX CONSTANTS
+FILE_EXTENSIONS = (
+    r".*\.(css|js|bmp|gif|jpe?g|ico"
+    + r"|png|tiff?|mid|mp2|mp3|mp4"
+    + r"|wav|avi|mov|mpg|mpeg|ram|m4v|mkv|ogg|ogv|pdf|bam|sam"
+    + r"|ps|eps|tex|ppt|ppsx|pptx|doc|docx|xls|xlsx|names"
+    + r"|data|dat|exe|bz2|tar|msi|bin|7z|psd|dmg|iso"
+    + r"|epub|dll|cnf|tgz|sha1|odc|scm"
+    + r"|thmx|mso|arff|rtf|jar|csv|apk"
+    + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
+)
+
+
+
+# DATA STRUCTURE CONSTANTS
+LINK_DUMP_STRUCTURE = {'Seed': {'Good': {}, 'Bad': {}}, 'Legal': {}, 'Removed': {}}
+WORDS_STATS_STRUCTURE = {'Stats': {'Longest_Page_(words)': {}, '50_Most_Common_Words': {}}, 'URL_list': {},'Word_list': {}}
+PAGES_CRAWLED_STRUCTURE = {'Unique': {'Pages': 0, 'ICS_Subdomains': {}}, 'Subdomains_List': {}, 'Link_List': {}}
