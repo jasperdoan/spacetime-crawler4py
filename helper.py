@@ -86,31 +86,45 @@ class Helper:
         of unique pages and subdomains for 'ics.uci.edu'.
         """
         # Init/Update the 'page_crawled.json' file with the new links
-        page_crawled = load_or_initialize_json(
+        pg = load_or_initialize_json(
             './data/page_crawled.json', 
             {
-                'Stats': {
-                    'Unique_Pages': 0, 
+                'Unique': {
+                    'Pages': 0, 
                     'ICS_Subdomains': {}},
-                'Full_Link_Lists':{}})
+                'Subdomains_List': {},
+                'Link_List': {}})
 
         for link in link_list:
             # Split up url into parts
             domain, subdomain, path = parse_url(link)
+            full_subdomain = f'{subdomain}.{domain}'
+            domain_path = f'{domain}{path}'
+            without_scheme = f'{full_subdomain}{path}'
+            ics_domain_condition = domain == 'ics.uci.edu' and subdomain != 'www'
 
-            # Add any new subdomains for uci.edu domain
-            if domain == 'ics.uci.edu' and subdomain != 'www':
-                full_subdomain = f'{subdomain}.{domain}'
-                page_crawled['Stats']['ICS_Subdomains'][full_subdomain] = page_crawled['Stats']['ICS_Subdomains'].get(full_subdomain, 0) + 1
+            # If subdomain does not exist already, initialize it
+            if ics_domain_condition and subdomain not in pg['Subdomains_List']:
+                pg['Subdomains_List'][subdomain] = {domain_path: 1}
+                pg['Unique']['ICS_Subdomains'][full_subdomain] = 1
 
-            # If not visited before, it is another unique page
-            if link not in page_crawled['Full_Link_Lists']:
-                page_crawled['Stats']['Unique_Pages'] += 1
+            # Otherwise, update the subdomain and domain path
+            elif ics_domain_condition:
+                visited = domain_path in pg['Subdomains_List'][subdomain]
+
+                # If domain path has not been visited, add it to the subdomain list
+                if not visited:
+                    pg['Subdomains_List'][subdomain][domain_path] = 1
+                    pg['Unique']['ICS_Subdomains'][full_subdomain] = pg['Unique']['ICS_Subdomains'].get(full_subdomain, 0) + 1
+
+                # Else, already visited, just increment the count
+                else:
+                    pg['Subdomains_List'][subdomain][domain_path] += 1
             
-            # Keep track of all visited links, and its freq
-            page_crawled['Full_Link_Lists'][link] = page_crawled['Full_Link_Lists'].get(link, 0) + 1
+            pg['Unique']['Pages'] += 1 if without_scheme not in pg['Link_List'] else 0
+            pg['Link_List'][without_scheme] = pg['Link_List'].get(without_scheme, 0) + 1
 
         # Sort subdomains ordered alphabetically
-        page_crawled['Stats']['ICS_Subdomains'] = dict(sorted(page_crawled['Stats']['ICS_Subdomains'].items()))
+        pg['Unique']['ICS_Subdomains'] = dict(sorted(pg['Unique']['ICS_Subdomains'].items()))
 
-        write_json('./data/page_crawled.json', page_crawled)
+        write_json('./data/page_crawled.json', pg)
