@@ -3,14 +3,14 @@ import re
 from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
 from helper import Helper
-from constants import VALID_URLS, BLACKLISTED_URLS, MAX_HTTP_BYTES_SIZE
+from constants import VALID_URLS, BLACKLISTED_URLS, MAX_HTTP_BYTES_SIZE, LINK_DUMP_PATH
 from json_utils import load_or_initialize_json, write_json
 
 helper = Helper()
 
 
 def scraper(url, resp):
-    link_dump = load_or_initialize_json('./data/link_dump.json', {'Seed': {'Good': {}, 'Bad': {}}, 'Legal': {}, 'Removed': {}})
+    link_dump = load_or_initialize_json(LINK_DUMP_PATH, {'Seed': {'Good': {}, 'Bad': {}}, 'Legal': {}, 'Removed': {}})
     valid_links = []
 
     # Set seed page, if not already visited. Skip if already visited
@@ -23,7 +23,7 @@ def scraper(url, resp):
     link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
     if not seed_valid:
         print(f"\tSeed page is not valid, skipping\n")
-        write_json('./data/link_dump.json', link_dump)
+        write_json(LINK_DUMP_PATH, link_dump)
         return []
 
     # Grab links within seed page
@@ -40,7 +40,7 @@ def scraper(url, resp):
         helper.scrape_words(url, resp)                                  # Scape words within page
 
     # Logs legal/illegal url into json file
-    write_json('./data/link_dump.json', link_dump)
+    write_json(LINK_DUMP_PATH, link_dump)
 
     return valid_links
 

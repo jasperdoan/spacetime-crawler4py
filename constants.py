@@ -46,3 +46,8 @@ STOP_WORDS = {
     }
 
 MAX_HTTP_BYTES_SIZE = 5000000  # 5 MB
+
+DATA_DIR = './data'
+LINK_DUMP_PATH = f'{DATA_DIR}/link_dump.json'
+PAGE_CRAWLED_PATH = f'{DATA_DIR}/page_crawled.json'
+WORDS_STATS_PATH = f'{DATA_DIR}/words_stats.json'

@@ -1,7 +1,6 @@
 [x] Improve current implementation for requirement 4 (subdomains of uci.edu ordered alphabetically, and how many links each subdomain contains)
 
-[x] need to remove queries from crawled urls
-    - solved by splitting link string on question mark after defrag
+[x] need to remove queries from crawled urls - solved by splitting link string on question mark after defrag
 
 [x] currently revisting websites
 
@@ -11,9 +10,11 @@
 
 [x] Add more documentation in scraper.py
 
-[ ] Fix Largest page is currently https://ics.uci.edu/~seal/projects/deldroid/ArchManager.apk which is not correct
+[x] Check if there's any OK links in Removed list in link_dump
 
-[ ] Check if there's any OK links in Removed list in link_dump
+[x] Fix unique pages count and subdomain count
+
+[ ] Fix Largest page is currently https://ics.uci.edu/~seal/projects/deldroid/ArchManager.apk which is not correct
 
 [ ] Check if crawler fell into any traps
 

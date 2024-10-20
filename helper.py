@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from constants import STOP_WORDS, MAX_HTTP_BYTES_SIZE
+from constants import STOP_WORDS, MAX_HTTP_BYTES_SIZE, PAGE_CRAWLED_PATH, WORDS_STATS_PATH
 from json_utils import load_or_initialize_json, write_json
 from parser_utils import set_up_ssl, download_nltk_library, tokenize, parse_url
 
@@ -22,7 +22,7 @@ class Helper:
         has_data = resp.raw_response != None 
                                                        
         # Check if the response content size is less than MAX_HTTP_BYTES_SIZE
-        less_than_max_size = len(resp.raw_response.content) < MAX_HTTP_BYTES_SIZE if has_data else False
+        less_than_max_size = len(resp.raw_response.content) <= MAX_HTTP_BYTES_SIZE if has_data else False
 
         return ok_status and has_data and less_than_max_size
 
@@ -39,7 +39,7 @@ class Helper:
         """
         # Load/Init the 'words_stats.json' file
         words_stats = load_or_initialize_json(
-            './data/words_stats.json', 
+            WORDS_STATS_PATH, 
             {
                 'Stats': {
                     'Longest_Page_(words)': {}, 
@@ -47,6 +47,11 @@ class Helper:
                     }, 
                 'URL_list': {},
                 'Word_list': {}})
+
+        sort_args = {
+            'key': lambda item: item[1],
+            'reverse': True
+        }
         
         # Download the NLTK 'wordnet' library if it is not already present
         # Parse and extract data from HTML tags using BeautifulSoup
@@ -65,15 +70,19 @@ class Helper:
             words_stats['Word_list'][token] = words_stats['Word_list'].get(token, 0) + 1
 
         # Sort the URL_list by the number of words in descending order and update the longest page
-        sorted_url_list = sorted(words_stats['URL_list'].items(), key=lambda item: item[1], reverse=True)
+        sorted_url_list = sorted(words_stats['URL_list'].items(), **sort_args)
+
+        # Update main stats
         words_stats['Stats']['Longest_Page_(words)'] = {sorted_url_list[0][0]: sorted_url_list[0][1]}
 
         # Sort the word list by frequency and save the 50 most common words
-        sorted_words = sorted(words_stats['Word_list'].items(), key=lambda item: item[1], reverse=True)
+        sorted_words = sorted(words_stats['Word_list'].items(), **sort_args)
+
+        # Update main stats
         words_stats['Stats']['50_Most_Common_Words'] = dict(sorted_words[:50])
 
         # Save the all statistics to 'words_stats.json'
-        write_json('./data/words_stats.json', words_stats)
+        write_json(WORDS_STATS_PATH, words_stats)
 
 
 
@@ -87,7 +96,7 @@ class Helper:
         """
         # Init/Update the 'page_crawled.json' file with the new links
         pg = load_or_initialize_json(
-            './data/page_crawled.json', 
+            PAGE_CRAWLED_PATH, 
             {
                 'Unique': {
                     'Pages': 0, 
@@ -127,4 +136,4 @@ class Helper:
         # Sort subdomains ordered alphabetically
         pg['Unique']['ICS_Subdomains'] = dict(sorted(pg['Unique']['ICS_Subdomains'].items()))
 
-        write_json('./data/page_crawled.json', pg)
+        write_json(PAGE_CRAWLED_PATH, pg)
