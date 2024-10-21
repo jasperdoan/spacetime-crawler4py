@@ -5,12 +5,16 @@ from queue import Queue, Empty
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
 
+
+
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
         self.config = config
         self.to_be_downloaded = Queue()
         self.lock = RLock()
+        self.domain_lock = Lock()
+        self.last_request_time = {}
         
         if not os.path.exists(self.config.save_file) and not restart:
             self.logger.info(

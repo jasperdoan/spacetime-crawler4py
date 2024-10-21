@@ -1,11 +1,11 @@
-from threading import Thread
-
-from inspect import getsource
-from utils.download import download
-from utils import get_logger
 import scraper
 import time
 
+from threading import Thread
+from inspect import getsource
+from utils.download import download
+from utils import get_logger
+from urllib.parse import urlparse
 
 class Worker(Thread):
     def __init__(self, worker_id, config, frontier):
@@ -17,12 +17,17 @@ class Worker(Thread):
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
         super().__init__(daemon=True)
         
+        
     def run(self):
         while True:
             tbd_url = self.frontier.get_tbd_url()
             if not tbd_url:
                 self.logger.info("Frontier is empty. Stopping Crawler.")
                 break
+            
+            # Enforce politeness rule
+            self.enforce_politeness(tbd_url)
+            
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
                 f"Downloaded {tbd_url}, status <{resp.status}>, "
@@ -32,3 +37,16 @@ class Worker(Thread):
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
             time.sleep(self.config.time_delay)
+    
+
+    def enforce_politeness(self, url):
+        domain = urlparse(url).netloc
+        with self.frontier.domain_lock:
+            last_request_time = self.frontier.last_request_time.get(domain, 0)
+            current_time = time.time()
+            elapsed_time = current_time - last_request_time
+            if elapsed_time < self.config.time_delay:
+                sleep_time = self.config.time_delay - elapsed_time
+                self.logger.info(f"Sleeping for {sleep_time:.2f} seconds to respect politeness for domain {domain}")
+                time.sleep(sleep_time)
+            self.frontier.last_request_time[domain] = time.time()
