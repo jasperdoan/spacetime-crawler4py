@@ -108,3 +108,8 @@ venv.bak/
 
 *.full.py
 *.shelve
+
+# misc
+*.zip
+*.json
+.*
