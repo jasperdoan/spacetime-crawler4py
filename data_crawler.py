@@ -94,7 +94,7 @@ class DataCrawler:
         # Parse the response content using BeautifulSoup
         soup = BeautifulSoup(resp.raw_response.content, 'html.parser')
         
-        # Tokenize the text content, lemmitize, and remove stop words
+        # Tokenize the text content and remove stop words
         token_list = tokenize(soup.text)
         token_list = [token for token in token_list if token not in STOP_WORDS]
         

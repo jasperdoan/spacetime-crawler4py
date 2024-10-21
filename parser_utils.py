@@ -3,7 +3,6 @@ import ssl
 import nltk
 
 from nltk.tokenize import RegexpTokenizer
-from nltk.stem import WordNetLemmatizer
 from urllib.parse import urlparse
 
 
@@ -44,13 +43,12 @@ def download_nltk_library():
 
 def tokenize(text):
     """
-    Tokenize and lemmatize the input text.
+    Tokenize the input text.
 
     This function uses NLTK's RegexpTokenizer to tokenize the text into words,
-    converts them to lowercase, and then lemmatizes each word using WordNetLemmatizer.
-    Single-character tokens are removed.
+    converts them to lowercase, and removes single-character tokens.
 
-    We want to lemmatize the text for several reasons:
+    We want to tokenize the text for several reasons:
     - Helps in normalizing the text, for word frequency analysis, where you want to count all occurrences of a word regardless of its form.
     - Reduce the number of unique words in your dataset
     """
@@ -58,12 +56,8 @@ def tokenize(text):
     re_tokenizer = RegexpTokenizer('[a-zA-Z0-9]+')
     re_tokens = re_tokenizer.tokenize(text.lower())
     
-    # Identify the base form of any verbs (pos="v") and lemmatize those tokens
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(w, pos="v") for w in re_tokens]
-    
     # Remove single-character tokens
-    return [token for token in tokens if len(token) != 1]
+    return [token for token in re_tokens if len(token) != 1]
 
 
 

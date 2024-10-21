@@ -1,6 +1,10 @@
 import json
 import os
+import threading
 
+
+# Global lock object
+json_write_lock = threading.Lock()
 
 
 def check_data_directory_exists():
@@ -42,8 +46,9 @@ def write_json(file_path, data):
     """
     check_data_directory_exists()
     try:
-        with open(file_path, 'w') as json_file:
-            json.dump(data, json_file)
+        with json_write_lock:  # Use the lock to synchronize access
+            with open(file_path, 'w') as json_file:
+                json.dump(data, json_file)
     except PermissionError:
         print(f"Error: Permission denied when trying to write to the file {file_path}.")
         raise
