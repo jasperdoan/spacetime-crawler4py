@@ -138,6 +138,8 @@ def is_seed_page_visited(url: str, link_dump: Dict) -> bool:
     """
     return url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']
 
+
+
 def validate_seed_page(url: str, link_dump: Dict) -> bool:
     """
     Validate the seed page and update the link dump.
