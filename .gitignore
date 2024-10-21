@@ -112,3 +112,4 @@ venv.bak/
 # misc
 *.zip
 *.json
+.*
