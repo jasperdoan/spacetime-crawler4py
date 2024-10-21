@@ -24,3 +24,4 @@
 
 [ ] (Not sure if this is the right call but) Want to fix reading in urls such as http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018 where its still a pdf file but re doesn't catch it. Are we supposed to read in pdf uploads? Bc some have paths like /pdf/, /doc/, /uploads/, so if not then we should fix this in is_valid()
 
+[ ] Lemmatization doesn't play well with multithreading
