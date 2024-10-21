@@ -73,6 +73,10 @@ FILE_EXTENSIONS = (
     + r"|rm|smil|wmv|swf|wma|war|zip|rar|gz|z|zip)$"
 )
 
+PATH_SEGMENTS = {
+    '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/'
+    }
+
 
 
 # DATA STRUCTURE CONSTANTS
