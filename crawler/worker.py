@@ -40,6 +40,11 @@ class Worker(Thread):
     
 
     def enforce_politeness(self, url):
+        """
+        Lock is used here to enforce the 500ms politeness policy for domains. Each domain's last request time is 
+        checked and updated in a critical section. Since this is a simple mutual exclusion scenario where the same 
+        thread does not need to acquire the lock multiple times, a basic Lock is sufficient.
+        """
         domain = urlparse(url).netloc
         with self.frontier.domain_lock:
             last_request_time = self.frontier.last_request_time.get(domain, 0)

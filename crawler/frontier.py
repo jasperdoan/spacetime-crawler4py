@@ -12,9 +12,9 @@ class Frontier(object):
         self.logger = get_logger("FRONTIER")
         self.config = config
         self.to_be_downloaded = Queue()
-        self.lock = RLock()
-        self.domain_lock = Lock()
-        self.last_request_time = {}
+        self.lock = RLock()                 # Reader-writer lock
+        self.domain_lock = Lock()           # Lock for domain politeness
+        self.last_request_time = {}         # Dictionary to store last request time for each domain
         
         if not os.path.exists(self.config.save_file) and not restart:
             self.logger.info(
