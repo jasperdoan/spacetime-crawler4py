@@ -8,6 +8,7 @@ from constants import (
     MAX_HTTP_BYTES_SIZE, 
     LINK_DUMP_PATH, 
     FILE_EXTENSIONS,
+    PATH_SEGMENTS,
     LINK_DUMP_STRUCTURE)
 from json_utils import load_or_initialize_json, write_json
 from typing import List, Tuple, Dict
@@ -117,7 +118,14 @@ def is_valid(url: str) -> Tuple[bool, str]:
 
         # Check for illegal file extensions
         invalid_link = re.match(FILE_EXTENSIONS, parsed.path.lower())
-        return not invalid_link, "OK" if not invalid_link else "Has invalid extensions"
+        if invalid_link:
+            return False, "Has invalid extensions"
+
+        # Check for specific path segments indicating document uploads
+        if any(segment in parsed.path.lower() for segment in PATH_SEGMENTS):
+            return False, "Contains path segments indicating document uploads"
+
+        return True, "OK"
 
     except TypeError:
         print(f"\tTypeError for {parsed}\n")
