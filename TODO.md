@@ -18,10 +18,18 @@
 
 [x] Some url has ' ' spaces in them, need to remove them
 
+[x] (Not sure if this is the right call but) Want to fix reading in urls such as http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018 where its still a pdf file but re doesn't catch it. Are we supposed to read in pdf uploads? Bc some have paths like /pdf/, /doc/, /uploads/, so if not then we should fix this in is_valid()
+
 [ ] Check if crawler fell into any traps
+
+[ ] I did this: two or more requests to the same domain, possibly from separate threads, must have a delay of 500ms. But probably if there was a way to actually check it that would be great
 
 [ ] What are large files (in MB?), especially if they have low information value (?)
 
-[ ] (Not sure if this is the right call but) Want to fix reading in urls such as http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018 where its still a pdf file but re doesn't catch it. Are we supposed to read in pdf uploads? Bc some have paths like /pdf/, /doc/, /uploads/, so if not then we should fix this in is_valid()
+[ ] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
 
-[ ] Lemmatization doesn't play well with multithreading
+[ ] Some url are not lowered cased: like DataGuard.ics.uci.edu, or DataProtector.ics.uci.edu, and it messes up the the alphabetical sort in our function
+
+[ ] Need to compare Single-Thread vs Multi-Thread runs, and see if there are any discrepancy / diff
+
+[ ] Extra credit: Implement exact and near webpage similarity detection using the methods discussed in the lecture. Your implementation must be made from scratch, no libraries are allowed.
