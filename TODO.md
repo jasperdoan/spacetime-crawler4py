@@ -28,7 +28,7 @@
 
 [x] Check if crawler fell into any traps
 
-[ ] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
+[x] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
 
 [ ] Need to compare Single-Thread vs Multi-Thread runs, and see if there are any discrepancy / diff
 

@@ -6,7 +6,7 @@ from constants import (
     WORDS_STATS_STRUCTURE,
     PAGES_CRAWLED_STRUCTURE)
 from json_utils import load_or_initialize_json, write_json
-from parser_utils import tokenize, parse_url
+from parser_utils import tokenize, parse_url, download_nltk_library
 from dataclasses import dataclass, field
 from typing import Dict, Any
 
@@ -84,7 +84,7 @@ class DataCrawler:
         # Load or initialize word statistics
         ws = load_or_initialize_json(WORDS_STATS_PATH, WORDS_STATS_STRUCTURE)
         ws = WordStats(**ws)
-        
+        download_nltk_library()
         sort_args = {'key': lambda item: item[1], 'reverse': True}
         
         # Parse the response content using BeautifulSoup
