@@ -45,13 +45,14 @@ class Worker(Thread):
         checked and updated in a critical section. Since this is a simple mutual exclusion scenario where the same 
         thread does not need to acquire the lock multiple times, a basic Lock is sufficient.
         """
-        domain = urlparse(url).netloc
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc.split('.', 1)[1]
         with self.frontier.domain_lock:
             last_request_time = self.frontier.last_request_time.get(domain, 0)
             current_time = time.time()
             elapsed_time = current_time - last_request_time
-            if elapsed_time < self.config.time_delay + 0.1:
-                sleep_time = self.config.time_delay + 0.1 - elapsed_time
+            if elapsed_time < self.config.time_delay + 0.05:
+                sleep_time = self.config.time_delay + 0.05 - elapsed_time
                 self.logger.info(f"Sleeping for {sleep_time:.2f} seconds to respect politeness for domain {domain}")
                 time.sleep(sleep_time)
             self.frontier.last_request_time[domain] = time.time()
