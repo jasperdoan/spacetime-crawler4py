@@ -10,7 +10,9 @@ VALID_URLS = {
 BLACKLISTED_URLS = {
     "wics.ics.uci.edu/events/",
     "isg.ics.uci.edu/events/",
-    "ics.uci.edu/events/"
+    "ics.uci.edu/events/",
+    "ics.uci.edu/?",        # Trap: includes informatics.uci.edu and ics.uci.edu
+    "ics.uci.edu?"          # More or less to avoid queries as well
     }
 
 STOP_WORDS = {
