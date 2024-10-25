@@ -50,8 +50,8 @@ class Worker(Thread):
             last_request_time = self.frontier.last_request_time.get(domain, 0)
             current_time = time.time()
             elapsed_time = current_time - last_request_time
-            if elapsed_time < self.config.time_delay:
-                sleep_time = self.config.time_delay - elapsed_time
+            if elapsed_time < self.config.time_delay + 0.1:
+                sleep_time = self.config.time_delay + 0.1 - elapsed_time
                 self.logger.info(f"Sleeping for {sleep_time:.2f} seconds to respect politeness for domain {domain}")
                 time.sleep(sleep_time)
             self.frontier.last_request_time[domain] = time.time()
