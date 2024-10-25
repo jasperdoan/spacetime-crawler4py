@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from constants import (
-    STOP_WORDS, 
     MAX_HTTP_BYTES_SIZE, 
     WORDS_STATS_PATH,
     PAGE_CRAWLED_PATH, 
@@ -93,7 +92,6 @@ class DataCrawler:
         
         # Tokenize the text content and remove stop words
         token_list = tokenize(soup.text)
-        token_list = [token for token in token_list if token not in STOP_WORDS]
         
         # Update URL list with the number of tokens
         ws.URL_list[url] = len(token_list)

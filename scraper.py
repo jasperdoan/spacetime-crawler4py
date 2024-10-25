@@ -1,8 +1,10 @@
 import re
+
 from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
 from data_crawler import DataCrawler, Response
 from constants import (
+    LOW_VALUE_SIZE,
     VALID_URLS, 
     BLACKLISTED_URLS, 
     MAX_HTTP_BYTES_SIZE, 
@@ -10,6 +12,7 @@ from constants import (
     FILE_EXTENSIONS,
     PATH_SEGMENTS,
     LINK_DUMP_STRUCTURE)
+from parser_utils import tokenize
 from json_utils import load_or_initialize_json, write_json
 from typing import List, Tuple, Dict
 
@@ -30,6 +33,7 @@ def scraper(url: str, resp: Response) -> List[str]:
     Returns:
         List[str]: A list of valid links found on the page.
     """
+    url = url.lower()
     link_dump = load_or_initialize_json(LINK_DUMP_PATH, LINK_DUMP_STRUCTURE)
     valid_links = []
 
@@ -41,6 +45,11 @@ def scraper(url: str, resp: Response) -> List[str]:
     # Validate the seed page
     if not validate_seed_page(url, link_dump):
         print("\tSeed page is not valid, skipping\n")
+        return []
+
+    # Check if the link is of low value
+    if low_value_link(resp):
+        print("\tLink is of low value, skipping\n")
         return []
 
     # Extract and validate links from the seed page
@@ -185,3 +194,19 @@ def validate_links(links: List[str], link_dump: Dict) -> List[str]:
             valid_links.append(link)
         link_dump['Legal' if validity else 'Removed'][link] = reason
     return valid_links
+
+
+
+def low_value_link(response: Response) -> bool:
+    """
+    Check if a link is of low value based on predefined rules.
+
+    Args:
+        url (str): The URL to be checked.
+
+    Returns:
+        bool: True if the link is of low value, False otherwise.
+    """
+    soup = BeautifulSoup(response.raw_response.content, 'html.parser')
+    tokens = tokenize(soup.text)
+    return len(tokens) < LOW_VALUE_SIZE

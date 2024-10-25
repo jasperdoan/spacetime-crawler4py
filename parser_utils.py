@@ -4,7 +4,7 @@ import nltk
 
 from nltk.tokenize import RegexpTokenizer
 from urllib.parse import urlparse
-
+from constants import STOP_WORDS
 
 
 def tokenize(text):
@@ -21,6 +21,7 @@ def tokenize(text):
     # Tokenize the text into words, re_tokens = ['word1', 'word2', ...]
     re_tokenizer = RegexpTokenizer('[a-zA-Z0-9]+')
     re_tokens = re_tokenizer.tokenize(text.lower())
+    re_tokens = [token for token in re_tokens if token not in STOP_WORDS]
     
     # Remove single-character tokens
     return [token for token in re_tokens if len(token) != 1]
