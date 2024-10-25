@@ -4,6 +4,7 @@ from utils.server_registration import get_cache_server
 from utils.config import Config
 from crawler.frontier import Frontier
 from crawler.worker import Worker
+from urllib.parse import urlparse
 
 def main(config_file, restart):
     cparser = ConfigParser()
@@ -13,8 +14,9 @@ def main(config_file, restart):
     frontier = Frontier(config, restart)
     
     workers = []
-    for i in range(config.threads_count):
-        worker = Worker(i, config, frontier)
+    domains = set(urlparse(url).netloc for url in config.seed_urls)
+    for i, domain in enumerate(domains):
+        worker = Worker(i, config, frontier, domain)
         worker.start()
         workers.append(worker)
     

@@ -4,18 +4,18 @@ from threading import Thread, RLock, Lock
 from queue import Queue, Empty
 from utils import get_logger, get_urlhash, normalize
 from scraper import is_valid
-
+from urllib.parse import urlparse
 
 
 class Frontier(object):
     def __init__(self, config, restart):
         self.logger = get_logger("FRONTIER")
         self.config = config
-        self.to_be_downloaded = Queue()
-        self.lock = RLock()                 # Reader-writer lock
-        self.domain_lock = Lock()           # Lock for domain politeness
-        self.last_request_time = {}         # Dictionary to store last request time for each domain
-        
+        self.to_be_downloaded = {}
+        self.lock = RLock()
+        self.domain_lock = Lock()
+        self.last_request_time = {}
+
         if not os.path.exists(self.config.save_file) and not restart:
             self.logger.info(
                 f"Did not find save file {self.config.save_file}, "
@@ -24,7 +24,7 @@ class Frontier(object):
             self.logger.info(
                 f"Found save file {self.config.save_file}, deleting it.")
             os.remove(self.config.save_file)
-        
+
         self.save = shelve.open(self.config.save_file)
         if restart:
             for url in self.config.seed_urls:
@@ -41,27 +41,39 @@ class Frontier(object):
         with self.lock:
             for url, completed in self.save.values():
                 if not completed and is_valid(url):
-                    self.to_be_downloaded.put(url)
+                    domain = urlparse(url).netloc
+                    if domain not in self.to_be_downloaded:
+                        self.to_be_downloaded[domain] = Queue()
+                    self.to_be_downloaded[domain].put(url)
                     tbd_count += 1
         self.logger.info(
             f"Found {tbd_count} urls to be downloaded from {total_count} "
             f"total urls discovered.")
 
-    def get_tbd_url(self):
+    def get_tbd_url(self, domain):
         try:
-            return self.to_be_downloaded.get_nowait()
-        except Empty:
+            return self.to_be_downloaded[domain].get_nowait()
+        except (Empty, KeyError):
+            # Attempt to redistribute URLs from other non-empty queues
+            with self.lock:
+                for other_domain, queue in self.to_be_downloaded.items():
+                    if not queue.empty():
+                        self.logger.info(f"Redistributing URL from {other_domain} to {domain}")
+                        return queue.get_nowait()
             return None
 
     def add_url(self, url):
         url = normalize(url)
         urlhash = get_urlhash(url)
+        domain = urlparse(url).netloc
         with self.lock:
             if urlhash not in self.save:
                 self.save[urlhash] = (url, False)
                 self.save.sync()
-                self.to_be_downloaded.put(url)
-    
+                if domain not in self.to_be_downloaded:
+                    self.to_be_downloaded[domain] = Queue()
+                self.to_be_downloaded[domain].put(url)
+
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
         with self.lock:

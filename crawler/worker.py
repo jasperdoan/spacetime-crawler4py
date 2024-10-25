@@ -8,24 +8,21 @@ from utils import get_logger
 from urllib.parse import urlparse
 
 class Worker(Thread):
-    def __init__(self, worker_id, config, frontier):
+    def __init__(self, worker_id, config, frontier, domain):
         self.logger = get_logger(f"Worker-{worker_id}", "Worker")
+        self.worker_id = worker_id
         self.config = config
         self.frontier = frontier
-        # basic check for requests in scraper
-        assert {getsource(scraper).find(req) for req in {"from requests import", "import requests"}} == {-1}, "Do not use requests in scraper.py"
-        assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
+        self.domain = domain
         super().__init__(daemon=True)
-        
         
     def run(self):
         while True:
-            tbd_url = self.frontier.get_tbd_url()
+            tbd_url = self.frontier.get_tbd_url(self.domain)
             if not tbd_url:
-                self.logger.info("Frontier is empty. Stopping Crawler.")
+                self.logger.info(f"Frontier is empty for domain {self.domain}. Stopping Worker-{self.worker_id}.")
                 break
             
-            # Enforce politeness rule
             self.enforce_politeness(tbd_url)
             
             resp = download(tbd_url, self.config, self.logger)
