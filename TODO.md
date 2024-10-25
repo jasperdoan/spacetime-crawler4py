@@ -24,9 +24,9 @@
 
 [x] Some url are not lowered cased: like DataGuard.ics.uci.edu, or DataProtector.ics.uci.edu, and it messes up the the alphabetical sort in our function
 
-[ ] Check if crawler fell into any traps
+[x] I did this: two or more requests to the same domain, possibly from separate threads, must have a delay of 500ms. But probably if there was a way to actually check it that would be great
 
-[ ] I did this: two or more requests to the same domain, possibly from separate threads, must have a delay of 500ms. But probably if there was a way to actually check it that would be great
+[x] Check if crawler fell into any traps
 
 [ ] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
 
