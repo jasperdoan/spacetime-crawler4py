@@ -124,7 +124,7 @@ class DataCrawler:
         pgc = PageCrawled(**pgc)
         
         for link in link_list:
-            domain, subdomain, path = parse_url(link)
+            domain, subdomain, path = parse_url(link.lower())
             full_subdomain = f'{subdomain}.{domain}'
             domain_path = f'{domain}{path}'
             without_scheme = f'{full_subdomain}{path}'

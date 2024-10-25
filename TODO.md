@@ -30,6 +30,10 @@
 
 [x] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
 
+[x] Holy Interleaved multithreading implementation, I'm literally the goat AND IT OBEYS POLITENESS POLICY LETS GOOO
+
+[ ] Sometimes you'll see "Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER." Is this a problem?
+
 [ ] Need to compare Single-Thread vs Multi-Thread runs, and see if there are any discrepancy / diff
 
 [ ] Extra credit: Implement exact and near webpage similarity detection using the methods discussed in the lecture. Your implementation must be made from scratch, no libraries are allowed.

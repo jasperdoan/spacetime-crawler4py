@@ -207,6 +207,8 @@ def low_value_link(response: Response) -> bool:
     Returns:
         bool: True if the link is of low value, False otherwise.
     """
+    if response.raw_response is None:
+        return True
     soup = BeautifulSoup(response.raw_response.content, 'html.parser')
     tokens = tokenize(soup.text)
     return len(tokens) < LOW_VALUE_SIZE
