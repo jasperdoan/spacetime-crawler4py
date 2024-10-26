@@ -11,10 +11,15 @@ BLACKLISTED_URLS = {
     "wics.ics.uci.edu/events/",
     "isg.ics.uci.edu/events/",
     "ics.uci.edu/events/",
+    # "swiki.ics.uci.edu/doku.php/",
+    # "grape.ics.uci.edu/wiki/asterix/",
     "ics.uci.edu/?",        # Trap: includes informatics.uci.edu and ics.uci.edu
     "ics.uci.edu?"          # More or less to avoid queries as well
     }
 
+
+
+# WORDS
 STOP_WORDS = {
     'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 
     "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 
@@ -37,7 +42,7 @@ STOP_WORDS = {
 
 
 # SIZE CONSTANTS
-MAX_HTTP_BYTES_SIZE = 5000000   # 5 MB Max for HTTP Response page
+MAX_HTTP_BYTES_SIZE = 10000000  # 10 MB Max for HTTP Response page
 LOW_VALUE_SIZE = 25             # Equivalent to just around 1 sentence in a page
 
 

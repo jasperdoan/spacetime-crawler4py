@@ -127,7 +127,6 @@ class DataCrawler:
             domain, subdomain, path = parse_url(link.lower())
             full_subdomain = f'{subdomain}.{domain}'
             domain_path = f'{domain}{path}'
-            without_scheme = f'{full_subdomain}{path}'
             ics_domain_condition = domain == 'ics.uci.edu' and subdomain != 'www'
             
             # Update subdomains list and unique subdomains for ICS domain
@@ -148,8 +147,8 @@ class DataCrawler:
                     pgc.Subdomains_List[subdomain][domain_path] += 1
             
             # Update unique pages and link list
-            pgc.Unique['Pages'] += 1 if without_scheme not in pgc.Link_List else 0
-            pgc.Link_List[without_scheme] = pgc.Link_List.get(without_scheme, 0) + 1
+            pgc.Unique['Pages'] += 1 if link not in pgc.Link_List else 0
+            pgc.Link_List[link] = pgc.Link_List.get(link, 0) + 1
         
         # Sort and update unique ICS subdomains
         pgc.Unique['ICS_Subdomains'] = dict(sorted(pgc.Unique['ICS_Subdomains'].items()))
