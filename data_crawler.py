@@ -6,7 +6,7 @@ from constants import (
     WORDS_STATS_STRUCTURE,
     PAGES_CRAWLED_STRUCTURE)
 from json_utils import load_or_initialize_json, write_json
-from parser_utils import tokenize, parse_url, download_nltk_library
+from parser_utils import tokenize, parse_url
 from dataclasses import dataclass, field
 from typing import Dict, Any
 
