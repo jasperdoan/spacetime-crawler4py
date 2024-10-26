@@ -43,8 +43,7 @@ STOP_WORDS = {
 
 # SIZE CONSTANTS
 MAX_HTTP_BYTES_SIZE = 10000000  # 10 MB Max for HTTP Response page
-LOW_VALUE_SIZE = 25             # Equivalent to just around 1 sentence in a page
-
+LOW_VALUE_SIZE = 15             # Equivalent to just around 1 sentence in a page
 
 
 # PATH CONSTANTS
