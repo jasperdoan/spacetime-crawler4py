@@ -3,13 +3,13 @@ import ssl
 import nltk
 
 from nltk.tokenize import RegexpTokenizer
-from nltk.stem import WordNetLemmatizer
+# from nltk.stem import WordNetLemmatizer
 from urllib.parse import urlparse
 from constants import STOP_WORDS
 
 
 # Do this first, that'll do something eval() to "materialize" the LazyCorpusLoader
-next(nltk.corpus.wordnet.all_synsets())
+# next(nltk.corpus.wordnet.all_synsets())
 
 
 def tokenize(text):
@@ -27,13 +27,13 @@ def tokenize(text):
     re_tokenizer = RegexpTokenizer('[a-zA-Z0-9]+')
     re_tokens = re_tokenizer.tokenize(text.lower())
 
-    # Remove stop words from the tokens
-    re_tokens = [token for token in re_tokens if token not in STOP_WORDS]
+    # Remove stop words from the tokens 
+    tokens = [token for token in re_tokens if token not in STOP_WORDS]
 
     # Identify the base form of any verbs (pos="v") and lemmatize those tokens
-    lemmatizer = WordNetLemmatizer()
-    tokens = [lemmatizer.lemmatize(w, pos="v") for w in re_tokens]
-    
+    # lemmatizer = WordNetLemmatizer()
+    # tokens = [lemmatizer.lemmatize(w, pos="v") for w in re_tokens]
+
     # Remove single-character tokens
     return [token for token in tokens if len(token) != 1]
 
@@ -51,39 +51,36 @@ def parse_url(link):
 
 
 
-def set_up_ssl():
-    """
-    Set up SSL context to allow unverified HTTPS connections.
-    This function is used to bypass SSL verification, which is necessary
-    for downloading NLTK data in some environments where SSL verification
-    might fail.
-        Source: https://github.com/Thundelly/CS121-Web-Crawler/blob/8cd040bd0834597a8265d4ea4d27487d71ff6bd7/scraper.py#L180
-    """
-    try:
-        _create_unverified_https_context = ssl._create_unverified_context
-    except AttributeError:
-        pass
-    else:
-        ssl._create_default_https_context = _create_unverified_https_context
+# def set_up_ssl():
+#     """
+#     Set up SSL context to allow unverified HTTPS connections.
+#     This function is used to bypass SSL verification, which is necessary
+#     for downloading NLTK data in some environments where SSL verification
+#     might fail.
+#         Source: https://github.com/Thundelly/CS121-Web-Crawler/blob/8cd040bd0834597a8265d4ea4d27487d71ff6bd7/scraper.py#L180
+#     """
+#     try:
+#         _create_unverified_https_context = ssl._create_unverified_context
+#     except AttributeError:
+#         pass
+#     else:
+#         ssl._create_default_https_context = _create_unverified_https_context
 
 
 
-def download_nltk_library():
-    """
-    Download the NLTK 'wordnet' library if it is not already present.
-    This function sets up the NLTK data path and downloads the 'wordnet'
-    corpus if it is not already available in the specified directory.
-    Provides short definitions and usage examples, and records various semantic relations.
-    Need to perform lemmatization.
-        Source: https://github.com/Thundelly/CS121-Web-Crawler/blob/8cd040bd0834597a8265d4ea4d27487d71ff6bd7/scraper.py#L180
-    """
-    if not os.path.exists('./nltk_data/corpora/'):
-        os.makedirs('./nltk_data/corpora/')
+# def download_nltk_library():
+#     """
+#     Download the NLTK 'wordnet' library if it is not already present.
+#     This function sets up the NLTK data path and downloads the 'wordnet'
+#     corpus if it is not already available in the specified directory.
+#     Provides short definitions and usage examples, and records various semantic relations.
+#     Need to perform lemmatization.
+#         Source: https://github.com/Thundelly/CS121-Web-Crawler/blob/8cd040bd0834597a8265d4ea4d27487d71ff6bd7/scraper.py#L180
+#     """
+#     if not os.path.exists('./nltk_data/corpora/'):
+#         os.makedirs('./nltk_data/corpora/')
 
-    # Set up the NLTK data path
-    nltk.data.path.append('./nltk_data/')
-
-    # Download the 'wordnet' corpus if it is not already present
-    if not os.path.exists('./nltk_data/corpora/wordnet.zip'):
-        set_up_ssl()
-        nltk.download('wordnet', download_dir='./nltk_data/')
+#     nltk.data.path.append('./nltk_data/')
+#     if not os.path.exists('./nltk_data/corpora'):
+#         set_up_ssl()
+#         nltk.download('wordnet', download_dir='./nltk_data/')
