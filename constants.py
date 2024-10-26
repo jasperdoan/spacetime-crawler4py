@@ -12,7 +12,7 @@ BLACKLISTED_URLS = {
     "isg.ics.uci.edu/events/",
     "ics.uci.edu/events/",
     # "swiki.ics.uci.edu/doku.php/",
-    "grape.ics.uci.edu/wiki/asterix/",
+    # "grape.ics.uci.edu/wiki/asterix/",
     "ics.uci.edu/?",        # Trap: includes informatics.uci.edu and ics.uci.edu
     "ics.uci.edu?",         # More or less to avoid queries as well
     "gitlab.ics.uci.edu/"
