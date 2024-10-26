@@ -84,7 +84,7 @@ class DataCrawler:
         # Load or initialize word statistics
         ws = load_or_initialize_json(WORDS_STATS_PATH, WORDS_STATS_STRUCTURE)
         ws = WordStats(**ws)
-        download_nltk_library()
+        # download_nltk_library()
         sort_args = {'key': lambda item: item[1], 'reverse': True}
         
         # Parse the response content using BeautifulSoup
