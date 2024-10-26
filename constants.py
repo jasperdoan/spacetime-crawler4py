@@ -68,7 +68,7 @@ FILE_EXTENSIONS = (
 
 PATH_SEGMENTS = {
     '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/','/calendar/', '/events/', 
-    '?do=', '?action=', '?from=', '?version=', '?rev=', '?idx='
+    '?do=', '?action=', '?from=', '?version=', '?rev=', '?idx=', '?share='
     }
 
 

@@ -77,7 +77,13 @@ def download_nltk_library():
     Need to perform lemmatization.
         Source: https://github.com/Thundelly/CS121-Web-Crawler/blob/8cd040bd0834597a8265d4ea4d27487d71ff6bd7/scraper.py#L180
     """
+    if not os.path.exists('./nltk_data/corpora/'):
+        os.makedirs('./nltk_data/corpora/')
+
+    # Set up the NLTK data path
     nltk.data.path.append('./nltk_data/')
-    if not os.path.exists('./nltk_data/corpora'):
+
+    # Download the 'wordnet' corpus if it is not already present
+    if not os.path.exists('./nltk_data/corpora/wordnet.zip'):
         set_up_ssl()
         nltk.download('wordnet', download_dir='./nltk_data/')
