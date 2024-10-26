@@ -12,7 +12,7 @@ BLACKLISTED_URLS = {
     "isg.ics.uci.edu/events/",
     "ics.uci.edu/events/",
     # "swiki.ics.uci.edu/doku.php/",
-    # "grape.ics.uci.edu/wiki/asterix/",
+    "grape.ics.uci.edu/wiki/asterix/",
     "ics.uci.edu/?",        # Trap: includes informatics.uci.edu and ics.uci.edu
     "ics.uci.edu?"          # More or less to avoid queries as well
     }
@@ -67,7 +67,8 @@ FILE_EXTENSIONS = (
 )
 
 PATH_SEGMENTS = {
-    '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/','/calendar/', '/events/'
+    '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/','/calendar/', '/events/', 
+    '?do=', '?action=', '?from=', '?version=', '?rev=', '?idx='
     }
 
 

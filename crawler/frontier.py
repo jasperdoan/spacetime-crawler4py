@@ -42,7 +42,8 @@ class Frontier(object):
         tbd_count = 0
         with self.lock:
             for url, completed in self.save.values():
-                if not completed and is_valid(url):
+                validity, reason = is_valid(url)
+                if not completed and validity:
                     self.add_url(url)
                     tbd_count += 1
         self.logger.info(

@@ -36,21 +36,29 @@ def scraper(url: str, resp: Response) -> List[str]:
     url = url.lower()
     link_dump = load_or_initialize_json(LINK_DUMP_PATH, LINK_DUMP_STRUCTURE)
     valid_links = []
+    text_visted = text_valid = text_value = ""
 
     # Check if the seed page has already been visited
-    if is_seed_page_visited(url, link_dump):
-        print("\tSeed page already visited, skipping\n")
+    seed_visited = url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']
+    if seed_visited:
+        text_visted = "\tAlready visited, skipping\n"
         return []
 
     # Validate the seed page
-    if not validate_seed_page(url, link_dump):
-        print("\tSeed page is not valid, skipping\n")
+    seed_valid, seed_reason = is_valid(url)
+    link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
+    if not seed_valid:
+        text_valid = f"\tIs invalid: {seed_reason}\n"
+        write_json(LINK_DUMP_PATH, link_dump)
         return []
 
     # Check if the link is of low value
     if low_value_link(resp):
-        print("\tLink is of low value, skipping\n")
+        text_value = "\tLink is of low value, skipping\n"
         return []
+
+    if text_visted or text_valid or text_value:
+        print(f"Scraping {url}:\n{text_visted}{text_valid}{text_value}")
 
     # Extract and validate links from the seed page
     links = extract_next_links(url, resp)
@@ -131,7 +139,7 @@ def is_valid(url: str) -> Tuple[bool, str]:
             return False, "Has invalid extensions"
 
         # Check for specific path segments indicating document uploads
-        if any(segment in parsed.path.lower() for segment in PATH_SEGMENTS):
+        if any(segment in url for segment in PATH_SEGMENTS):
             return False, "Contains path segments indicating document uploads"
 
         return True, "OK"
@@ -139,40 +147,6 @@ def is_valid(url: str) -> Tuple[bool, str]:
     except TypeError:
         print(f"\tTypeError for {parsed}\n")
         raise
-
-
-
-def is_seed_page_visited(url: str, link_dump: Dict) -> bool:
-    """
-    Check if the seed page has already been visited.
-
-    Args:
-        url (str): The URL of the seed page.
-        link_dump (Dict): The link dump data.
-
-    Returns:
-        bool: True if the seed page has been visited, False otherwise.
-    """
-    return url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']
-
-
-
-def validate_seed_page(url: str, link_dump: Dict) -> bool:
-    """
-    Validate the seed page and update the link dump.
-
-    Args:
-        url (str): The URL of the seed page.
-        link_dump (Dict): The link dump data.
-
-    Returns:
-        bool: True if the seed page is valid, False otherwise.
-    """
-    seed_valid, seed_reason = is_valid(url)
-    link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
-    if not seed_valid:
-        write_json(LINK_DUMP_PATH, link_dump)
-    return seed_valid
 
 
 
