@@ -17,7 +17,7 @@ class Worker(Thread):
         assert {getsource(scraper).find(req) for req in {"from urllib.request import", "import urllib.request"}} == {-1}, "Do not use urllib.request in scraper.py"
         super().__init__(daemon=True)
         
-        
+
     def run(self):
         while True:
             tbd_url = self.frontier.get_tbd_url()
@@ -30,28 +30,28 @@ class Worker(Thread):
             
             resp = download(tbd_url, self.config, self.logger)
             self.logger.info(
-                f"Downloaded {tbd_url}, status <{resp.status}>, "
-                f"using cache {self.config.cache_server}.")
+                f"Downloaded {tbd_url}, status <{resp.status}>.")
             scraped_urls = scraper.scraper(tbd_url, resp)
             for scraped_url in scraped_urls:
                 self.frontier.add_url(scraped_url)
             self.frontier.mark_url_complete(tbd_url)
             time.sleep(self.config.time_delay)
     
-
+    
     def enforce_politeness(self, url):
         """
         Lock is used here to enforce the 500ms politeness policy for domains. Each domain's last request time is 
         checked and updated in a critical section. Since this is a simple mutual exclusion scenario where the same 
         thread does not need to acquire the lock multiple times, a basic Lock is sufficient.
         """
-        domain = urlparse(url).netloc
+        parsed_url = urlparse(url)
+        domain = parsed_url.netloc.split('.', 1)[1]
         with self.frontier.domain_lock:
             last_request_time = self.frontier.last_request_time.get(domain, 0)
             current_time = time.time()
             elapsed_time = current_time - last_request_time
-            if elapsed_time < self.config.time_delay:
-                sleep_time = self.config.time_delay - elapsed_time
+            if elapsed_time < self.config.time_delay + 0.05:
+                sleep_time = self.config.time_delay + 0.05 - elapsed_time
                 self.logger.info(f"Sleeping for {sleep_time:.2f} seconds to respect politeness for domain {domain}")
                 time.sleep(sleep_time)
             self.frontier.last_request_time[domain] = time.time()

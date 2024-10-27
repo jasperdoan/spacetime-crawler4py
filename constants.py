@@ -9,24 +9,13 @@ VALID_URLS = {
 
 BLACKLISTED_URLS = {
     "wics.ics.uci.edu/events/",
-    "wics.ics.uci.edu/category/news/",
-    "ngs.ics.uci.edu/blog/page",
-    "ngs.ics.uci.edu/category",
-    "ngs.ics.uci.edu/tag/",
-    "ngs.ics.uci.edu/author/",
-    "isg.ics.uci.edu/events",
-    "ics.uci.edu/?",
-    "ics.uci.edu?",
-    "ics.uci.edu/events",
-    "evoke.ics.uci.edu",
-    "grape.ics.uci.edu",
-    "wiki.ics.uci.edu",
-    "swiki.ics.uci.edu",
-    "intranet.ics.uci.edu",
-    "cbcl.ics.uci.edu",
-    "gitlab.ics.uci.edu"
+    "isg.ics.uci.edu/events/",
+    "ics.uci.edu/events/"
     }
 
+
+
+# WORDS
 STOP_WORDS = {
     'a', 'about', 'above', 'after', 'again', 'against', 'all', 'am', 'an', 'and', 'any', 'are', 
     "aren't", 'as', 'at', 'be', 'because', 'been', 'before', 'being', 'below', 'between', 'both', 
@@ -49,8 +38,8 @@ STOP_WORDS = {
 
 
 # SIZE CONSTANTS
-MAX_HTTP_BYTES_SIZE = 5000000  # 5 MB
-
+MAX_HTTP_BYTES_SIZE = 10000000  # 10 MB Max for HTTP Response page
+LOW_VALUE_SIZE = 15             # Equivalent to just around 1 sentence in a page
 
 
 # PATH CONSTANTS
@@ -74,7 +63,8 @@ FILE_EXTENSIONS = (
 )
 
 PATH_SEGMENTS = {
-    '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/'
+    '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/','/calendar/', '/events/', 
+    '/commit/', '/tree/', '/blob/', '/-/'
     }
 
 

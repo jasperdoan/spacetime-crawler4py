@@ -1,6 +1,5 @@
 from bs4 import BeautifulSoup
 from constants import (
-    STOP_WORDS, 
     MAX_HTTP_BYTES_SIZE, 
     WORDS_STATS_PATH,
     PAGE_CRAWLED_PATH, 
@@ -85,7 +84,7 @@ class DataCrawler:
         # Load or initialize word statistics
         ws = load_or_initialize_json(WORDS_STATS_PATH, WORDS_STATS_STRUCTURE)
         ws = WordStats(**ws)
-        
+        # download_nltk_library()
         sort_args = {'key': lambda item: item[1], 'reverse': True}
         
         # Parse the response content using BeautifulSoup
@@ -93,7 +92,6 @@ class DataCrawler:
         
         # Tokenize the text content and remove stop words
         token_list = tokenize(soup.text)
-        token_list = [token for token in token_list if token not in STOP_WORDS]
         
         # Update URL list with the number of tokens
         ws.URL_list[url] = len(token_list)
@@ -126,10 +124,9 @@ class DataCrawler:
         pgc = PageCrawled(**pgc)
         
         for link in link_list:
-            domain, subdomain, path = parse_url(link)
+            domain, subdomain, path = parse_url(link.lower())
             full_subdomain = f'{subdomain}.{domain}'
             domain_path = f'{domain}{path}'
-            without_scheme = f'{full_subdomain}{path}'
             ics_domain_condition = domain == 'ics.uci.edu' and subdomain != 'www'
             
             # Update subdomains list and unique subdomains for ICS domain
@@ -150,8 +147,8 @@ class DataCrawler:
                     pgc.Subdomains_List[subdomain][domain_path] += 1
             
             # Update unique pages and link list
-            pgc.Unique['Pages'] += 1 if without_scheme not in pgc.Link_List else 0
-            pgc.Link_List[without_scheme] = pgc.Link_List.get(without_scheme, 0) + 1
+            pgc.Unique['Pages'] += 1 if link not in pgc.Link_List else 0
+            pgc.Link_List[link] = pgc.Link_List.get(link, 0) + 1
         
         # Sort and update unique ICS subdomains
         pgc.Unique['ICS_Subdomains'] = dict(sorted(pgc.Unique['ICS_Subdomains'].items()))

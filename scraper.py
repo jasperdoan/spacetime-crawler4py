@@ -1,8 +1,10 @@
 import re
+
 from urllib.parse import urlparse, urldefrag, urljoin
 from bs4 import BeautifulSoup
 from data_crawler import DataCrawler, Response
 from constants import (
+    LOW_VALUE_SIZE,
     VALID_URLS, 
     BLACKLISTED_URLS, 
     MAX_HTTP_BYTES_SIZE, 
@@ -10,6 +12,7 @@ from constants import (
     FILE_EXTENSIONS,
     PATH_SEGMENTS,
     LINK_DUMP_STRUCTURE)
+from parser_utils import tokenize
 from json_utils import load_or_initialize_json, write_json
 from typing import List, Tuple, Dict
 
@@ -30,18 +33,32 @@ def scraper(url: str, resp: Response) -> List[str]:
     Returns:
         List[str]: A list of valid links found on the page.
     """
+    url = url.lower()
     link_dump = load_or_initialize_json(LINK_DUMP_PATH, LINK_DUMP_STRUCTURE)
     valid_links = []
+    text_visted = text_valid = text_value = ""
 
     # Check if the seed page has already been visited
-    if is_seed_page_visited(url, link_dump):
-        print("\tSeed page already visited, skipping\n")
+    seed_visited = url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']
+    if seed_visited:
+        text_visted = "\tAlready visited, skipping\n"
         return []
 
     # Validate the seed page
-    if not validate_seed_page(url, link_dump):
-        print("\tSeed page is not valid, skipping\n")
+    seed_valid, seed_reason = is_valid(url)
+    link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
+    if not seed_valid:
+        text_valid = f"\tIs invalid: {seed_reason}\n"
+        write_json(LINK_DUMP_PATH, link_dump)
         return []
+
+    # Check if the link is of low value
+    if low_value_link(resp):
+        text_value = "\tLink is of low value, skipping\n"
+        return []
+
+    if text_visted or text_valid or text_value:
+        print(f"Scraping {url}:\n{text_visted}{text_valid}{text_value}")
 
     # Extract and validate links from the seed page
     links = extract_next_links(url, resp)
@@ -122,7 +139,7 @@ def is_valid(url: str) -> Tuple[bool, str]:
             return False, "Has invalid extensions"
 
         # Check for specific path segments indicating document uploads
-        if any(segment in parsed.path.lower() for segment in PATH_SEGMENTS):
+        if any(segment in url for segment in PATH_SEGMENTS):
             return False, "Contains path segments indicating document uploads"
 
         return True, "OK"
@@ -130,40 +147,6 @@ def is_valid(url: str) -> Tuple[bool, str]:
     except TypeError:
         print(f"\tTypeError for {parsed}\n")
         raise
-
-
-
-def is_seed_page_visited(url: str, link_dump: Dict) -> bool:
-    """
-    Check if the seed page has already been visited.
-
-    Args:
-        url (str): The URL of the seed page.
-        link_dump (Dict): The link dump data.
-
-    Returns:
-        bool: True if the seed page has been visited, False otherwise.
-    """
-    return url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']
-
-
-
-def validate_seed_page(url: str, link_dump: Dict) -> bool:
-    """
-    Validate the seed page and update the link dump.
-
-    Args:
-        url (str): The URL of the seed page.
-        link_dump (Dict): The link dump data.
-
-    Returns:
-        bool: True if the seed page is valid, False otherwise.
-    """
-    seed_valid, seed_reason = is_valid(url)
-    link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
-    if not seed_valid:
-        write_json(LINK_DUMP_PATH, link_dump)
-    return seed_valid
 
 
 
@@ -185,3 +168,21 @@ def validate_links(links: List[str], link_dump: Dict) -> List[str]:
             valid_links.append(link)
         link_dump['Legal' if validity else 'Removed'][link] = reason
     return valid_links
+
+
+
+def low_value_link(response: Response) -> bool:
+    """
+    Check if a link is of low value based on predefined rules.
+
+    Args:
+        url (str): The URL to be checked.
+
+    Returns:
+        bool: True if the link is of low value, False otherwise.
+    """
+    if response.raw_response is None:
+        return True
+    soup = BeautifulSoup(response.raw_response.content, 'html.parser')
+    tokens = tokenize(soup.text)
+    return len(tokens) < LOW_VALUE_SIZE

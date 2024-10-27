@@ -3,6 +3,7 @@ import os
 import threading
 import time
 
+from constants import DATA_DIR
 
 # Global lock object
 json_lock = threading.Lock()
@@ -12,10 +13,8 @@ def check_data_directory_exists():
     """
     Ensure that the data directory exists.
     """
-    data_dir = './data'
-    if not os.path.exists(data_dir):
-        os.makedirs(data_dir)
-
+    if not os.path.exists(DATA_DIR):
+        os.makedirs(DATA_DIR)
 
 
 def load_or_initialize_json(file_path, data_format, retries=5, delay=2):

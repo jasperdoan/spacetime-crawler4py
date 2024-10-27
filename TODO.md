@@ -20,15 +20,24 @@
 
 [x] (Not sure if this is the right call but) Want to fix reading in urls such as http://www.informatics.uci.edu/files/pdf/InformaticsBrochure-March2018 where its still a pdf file but re doesn't catch it. Are we supposed to read in pdf uploads? Bc some have paths like /pdf/, /doc/, /uploads/, so if not then we should fix this in is_valid()
 
-[ ] Check if crawler fell into any traps
+[x] What are large files (in MB?), especially if they have low information value (?)
 
-[ ] I did this: two or more requests to the same domain, possibly from separate threads, must have a delay of 500ms. But probably if there was a way to actually check it that would be great
+[x] Some url are not lowered cased: like DataGuard.ics.uci.edu, or DataProtector.ics.uci.edu, and it messes up the the alphabetical sort in our function
 
-[ ] What are large files (in MB?), especially if they have low information value (?)
+[x] I did this: two or more requests to the same domain, possibly from separate threads, must have a delay of 500ms. But probably if there was a way to actually check it that would be great
 
-[ ] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
+[x] Check if crawler fell into any traps
 
-[ ] Some url are not lowered cased: like DataGuard.ics.uci.edu, or DataProtector.ics.uci.edu, and it messes up the the alphabetical sort in our function
+[x] Lemmatization doesn't play well with multithreading (or at least the way I implemented it, keeps throwing an error).
+
+[x] Holy Interleaved multithreading implementation, I'm literally the goat AND IT OBEYS POLITENESS POLICY LETS GOOO
+
+[x] Sometimes you'll see "Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER." Is this a problem?
+
+- This isn't really a problem, but it's warning you that Python has trouble decoding the character. (usually chars that are not utf-8):
+    - Python defaults to replacing the character with the REPLACEMENT CHARACTER, which is U+FFFD (the question mark).
+    - This is likely un-meaningful content from the webpage. ✅**Already handled**✅ by `parser_utils.tokenize()` as it only considers alphanumeric characters from the webpage text. 
+    - Likely happening *within* `parser_utils.tokenize()` as it unwraps the webpage text. If you don't want the warning to show up consider silencing it while tokenizing.
 
 [ ] Need to compare Single-Thread vs Multi-Thread runs, and see if there are any discrepancy / diff
 
