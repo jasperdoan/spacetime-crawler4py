@@ -17,7 +17,10 @@ class ElapsedTimeFormatter(logging.Formatter):
         minutes, seconds = divmod(remainder, 60)
         milliseconds = (seconds - int(seconds)) * 1000
 
-        time_str = ""
+        # Get current date and time
+        current_time = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(record.created))
+
+        time_str = f"{current_time} | "
         if hours >= 1:
             time_str += f"{int(hours)}h"
         if minutes >= 1:
