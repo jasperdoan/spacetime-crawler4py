@@ -32,7 +32,12 @@
 
 [x] Holy Interleaved multithreading implementation, I'm literally the goat AND IT OBEYS POLITENESS POLICY LETS GOOO
 
-[ ] Sometimes you'll see "Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER." Is this a problem?
+[x] Sometimes you'll see "Some characters could not be decoded, and were replaced with REPLACEMENT CHARACTER." Is this a problem?
+
+- This isn't really a problem, but it's warning you that Python has trouble decoding the character. (usually chars that are not utf-8):
+    - Python defaults to replacing the character with the REPLACEMENT CHARACTER, which is U+FFFD (the question mark).
+    - This is likely un-meaningful content from the webpage. ✅**Already handled**✅ by `parser_utils.tokenize()` as it only considers alphanumeric characters from the webpage text. 
+    - Likely happening *within* `parser_utils.tokenize()` as it unwraps the webpage text. If you don't want the warning to show up consider silencing it while tokenizing.
 
 [ ] Need to compare Single-Thread vs Multi-Thread runs, and see if there are any discrepancy / diff
 
