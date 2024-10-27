@@ -10,9 +10,7 @@ VALID_URLS = {
 BLACKLISTED_URLS = {
     "wics.ics.uci.edu/events/",
     "isg.ics.uci.edu/events/",
-    "ics.uci.edu/events/",
-    "ics.uci.edu/?",        # Trap: includes informatics.uci.edu and ics.uci.edu
-    "ics.uci.edu?",         # More or less to avoid queries as well
+    "ics.uci.edu/events/"
     }
 
 
@@ -66,8 +64,7 @@ FILE_EXTENSIONS = (
 
 PATH_SEGMENTS = {
     '/pdf/', '/doc/', '/uploads/', '/upload/', '/viewdoc/','/calendar/', '/events/', 
-    '/commit/', '/tree/', '/blob/', '/-/',
-    '?do=', '?action=', '?from=', '?version=', '?rev=', '?idx=', '?tab_files=', '?share=', '?sort='
+    '/commit/', '/tree/', '/blob/', '/-/'
     }
 
 
