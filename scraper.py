@@ -57,8 +57,12 @@ def scraper(url: str, resp: Response) -> List[str]:
         text_value = "\tLink is of low value, skipping\n"
         return []
 
+    # Check for similarity
+    if dc.is_similar(url, BeautifulSoup(resp.raw_response.content, 'html.parser').text):
+        return []
+
     if text_visted or text_valid or text_value:
-        print(f"Scraping {url}:\n{text_visted}{text_valid}{text_value}")
+        print(f"\t{url}:\n{text_visted}{text_valid}{text_value}")
 
     # Extract and validate links from the seed page
     links = extract_next_links(url, resp)

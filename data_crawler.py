@@ -1,14 +1,17 @@
 from bs4 import BeautifulSoup
 from constants import (
-    MAX_HTTP_BYTES_SIZE, 
+    MAX_HTTP_BYTES_SIZE,
+    SIMHASH_THRESHOLD,
     WORDS_STATS_PATH,
     PAGE_CRAWLED_PATH, 
+    SIMHASH_PATH,
     WORDS_STATS_STRUCTURE,
     PAGES_CRAWLED_STRUCTURE)
 from json_utils import load_or_initialize_json, write_json
 from parser_utils import tokenize, parse_url
 from dataclasses import dataclass, field
 from typing import Dict, Any
+from simhash import SimHash
 
 
 
@@ -49,6 +52,10 @@ class DataCrawler:
     Class to handle data crawling operations including checking response status,
     scraping words, and getting page crawled information.
     """
+    def __init__(self):
+        self.simhash = SimHash()
+        self.visited_hashes = load_or_initialize_json(SIMHASH_PATH, {})
+
 
     def check_status_code_correct_crawl(self, resp: Response) -> bool:
         """
@@ -155,3 +162,20 @@ class DataCrawler:
         
         # Write updated page crawled information to JSON file
         write_json(PAGE_CRAWLED_PATH, pgc.__dict__)
+
+
+    def is_similar(self, url: str, content: str) -> bool:
+        if url in self.visited_hashes:
+            current_hash = self.visited_hashes[url]
+        else:
+            current_hash = self.simhash.compute_simhash(content)
+            self.visited_hashes[url] = current_hash
+            write_json(SIMHASH_PATH, self.visited_hashes)
+
+        temp_hashes = self.visited_hashes.copy()
+        for visited_url, visited_hash in temp_hashes.items():
+            similarity_percent = self.simhash.similarity(current_hash, visited_hash) 
+            if visited_url != url and similarity_percent >= SIMHASH_THRESHOLD:
+                print(f"\tPage {url} is {similarity_percent*100}% similar to {visited_url}\n")
+                return True
+        return False
