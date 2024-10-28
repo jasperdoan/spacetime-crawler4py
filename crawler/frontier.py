@@ -1,5 +1,5 @@
 import os
-import shelve
+import json
 
 from threading import Thread, RLock, Lock
 from queue import Queue, Empty
@@ -18,24 +18,37 @@ class Frontier(object):
         self.domain_lock = Lock()           # Lock for domain politeness
         self.last_request_time = {}         # Dictionary to store last request time for each domain
         
-        if not os.path.exists(self.config.save_file) and not restart:
+        if not os.path.exists(self.config.domain_queues_file) and not restart:
             self.logger.info(
-                f"Did not find save file {self.config.save_file}, "
+                f"Did not find save file {self.config.domain_queues_file}, "
                 f"starting from seed.")
-        elif os.path.exists(self.config.save_file) and restart:
+        elif os.path.exists(self.config.domain_queues_file) and restart:
             self.logger.info(
-                f"Found save file {self.config.save_file}, deleting it.")
-            os.remove(self.config.save_file)
+                f"Found save file {self.config.domain_queues_file}, deleting it.")
+            os.remove(self.config.domain_queues_file)
         
-        self.save = shelve.open(self.config.save_file)
         if restart:
+            self.save = {}
             for url in self.config.seed_urls:
                 self.add_url(url)
         else:
-            self._parse_save_file()
+            self.save = self._load_save_file()
             if not self.save:
                 for url in self.config.seed_urls:
                     self.add_url(url)
+        
+        # Load domain queues from JSON file if it exists
+        self.load_domain_queues()
+
+    def _load_save_file(self):
+        if os.path.exists(self.config.domain_queues_file):
+            with open(self.config.domain_queues_file, 'r') as f:
+                return json.load(f)
+        return {}
+
+    def _save_to_file(self):
+        with open(self.config.domain_queues_file, 'w') as f:
+            json.dump(self.save, f)
 
     def _parse_save_file(self):
         total_count = len(self.save)
@@ -74,11 +87,12 @@ class Frontier(object):
         with self.lock:
             if urlhash not in self.save:
                 self.save[urlhash] = (url, False)
-                self.save.sync()
+                self._save_to_file()
                 self.domain_queues[domain].put(url)
                 if domain not in self.domain_order:
                     self.domain_order.append(domain)
-    
+                self.save_domain_queues()  # Save domain queues to JSON
+
     def mark_url_complete(self, url):
         urlhash = get_urlhash(url)
         with self.lock:
@@ -86,4 +100,21 @@ class Frontier(object):
                 self.logger.error(
                     f"Completed url {url}, but have not seen it before.")
             self.save[urlhash] = (url, True)
-            self.save.sync()
+            self._save_to_file()
+            self.save_domain_queues()  # Save domain queues to JSON
+
+    def save_domain_queues(self):
+        with self.lock:
+            domain_queues_dict = {domain: list(queue.queue) for domain, queue in self.domain_queues.items()}
+            with open(self.config.domain_queues_file, 'w') as f:
+                json.dump(domain_queues_dict, f)
+
+    def load_domain_queues(self):
+        if os.path.exists(self.config.domain_queues_file):
+            with open(self.config.domain_queues_file, 'r') as f:
+                domain_queues_dict = json.load(f)
+                for domain, urls in domain_queues_dict.items():
+                    self.domain_queues[domain] = Queue()
+                    for url in urls:
+                        self.domain_queues[domain].put(url)
+                    self.domain_order.append(domain)

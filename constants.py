@@ -40,6 +40,7 @@ STOP_WORDS = {
 # SIZE CONSTANTS
 MAX_HTTP_BYTES_SIZE = 10000000  # 10 MB Max for HTTP Response page
 LOW_VALUE_SIZE = 15             # Equivalent to just around 1 sentence in a page
+SIMHASH_THRESHOLD = 0.8         # Similarity threshold for near duplicates
 
 
 # PATH CONSTANTS
@@ -47,6 +48,7 @@ DATA_DIR = './data'
 LINK_DUMP_PATH = f'{DATA_DIR}/link_dump.json'
 PAGE_CRAWLED_PATH = f'{DATA_DIR}/page_crawled.json'
 WORDS_STATS_PATH = f'{DATA_DIR}/words_stats.json'
+SIMHASH_PATH = f'{DATA_DIR}/simhashes.json'
 
 
 
