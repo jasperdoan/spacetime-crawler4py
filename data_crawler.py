@@ -54,7 +54,7 @@ class DataCrawler:
     """
     def __init__(self):
         self.simhash = SimHash()
-        self.visited_hashes = load_or_initialize_json(SIMHASH_PATH, {})
+        self.visited_hashes = {}
 
 
     def check_status_code_correct_crawl(self, resp: Response) -> bool:
@@ -165,6 +165,7 @@ class DataCrawler:
 
 
     def is_similar(self, url: str, content: str) -> bool:
+        self.visited_hashes = load_or_initialize_json(SIMHASH_PATH, {})
         if url in self.visited_hashes:
             current_hash = self.visited_hashes[url]
         else:
@@ -180,13 +181,12 @@ class DataCrawler:
             similarity_percent = self.simhash.similarity(current_hash, visited_hash)
             if visited_url != url:
                 if similarity_percent >= SIMHASH_THRESHOLD:
-                    print(f"\tSkipping, page {similarity_percent*100}% similar to {visited_url}\n")
+                    print(f"\tSkipping, page is {similarity_percent*100}% similar to {visited_url}\n")
                     return True
                 if similarity_percent > highest_similarity:
                     highest_similarity = similarity_percent
                     most_similar_url = visited_url
 
         if most_similar_url:
-            print(f"\tMost similar page has {highest_similarity*100}% similarity to {most_similar_url}\n")
-            
+            print(f"\tMost similar page with {highest_similarity*100}% similarity is {most_similar_url}\n")
         return False
