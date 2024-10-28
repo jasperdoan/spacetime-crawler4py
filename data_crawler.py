@@ -173,9 +173,20 @@ class DataCrawler:
             write_json(SIMHASH_PATH, self.visited_hashes)
 
         temp_hashes = self.visited_hashes.copy()
+        most_similar_url = None
+        highest_similarity = 0
+
         for visited_url, visited_hash in temp_hashes.items():
-            similarity_percent = self.simhash.similarity(current_hash, visited_hash) 
-            if visited_url != url and similarity_percent >= SIMHASH_THRESHOLD:
-                print(f"\tPage {url} is {similarity_percent*100}% similar to {visited_url}\n")
-                return True
+            similarity_percent = self.simhash.similarity(current_hash, visited_hash)
+            if visited_url != url:
+                if similarity_percent >= SIMHASH_THRESHOLD:
+                    print(f"\tSkipping, page {similarity_percent*100}% similar to {visited_url}\n")
+                    return True
+                if similarity_percent > highest_similarity:
+                    highest_similarity = similarity_percent
+                    most_similar_url = visited_url
+
+        if most_similar_url:
+            print(f"\tMost similar page has {highest_similarity*100}% similarity to {most_similar_url}\n")
+            
         return False
