@@ -7,7 +7,7 @@ cont:
 	rm -f frontier.shelve
 	python3 launch.py
 
-clean:
+clean_all:
 	rm -f frontier.shelve
 	rm -f frontier_shelve.json
 	rm -f ./data/*.json
