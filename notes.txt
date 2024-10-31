@@ -1,0 +1,93 @@
+Q1
+    Our number of 12983 unique pages is consistent across different settings/configs/filters
+    We think the range from 11k-18k suggests a well-implemented crawler that crawled:
+        - the specified domain
+        - handles duplicate pages
+        - adheres to politeness policy
+
+    *Shows other runs*
+    We experimented with different settings and filters, while also exchanging what other groups reported
+    and our number makes sense
+
+    Otherwise, across our 15 different runs, 12 tests and 3 deployments, highest was 25k, lowest was 7k
+    And there's a normal probability distribution around 11k-18k in our runs
+
+Q2
+    "http://www.ics.uci.edu/~shantas/publications/20-secret-sharing-aggregation-TKDE-shantanu": 147340 words
+
+    Prety easy to find. We did find a larger number though it with a .git file which is not a webpage
+
+Q3
+    The 50 most common words data makes sense, we expected "research", "student", "information", "computer", and "data" 
+    to be the most common words. These are common words in academic settings and especially in the ICS domain.
+
+Q4
+    Number of subdomains was also easy to find
+
+
+Implemented Near-Duplicate detection SimHash +2 EC
+Implemented Multi-threading (adhering to politeness policy) +5 EC
+
+Crawler Architecture:
+    Frontier:       Manages the URLs to be crawled, ensuring that URLs are added, retrieved, and marked as complete in a thread-safe manner.
+    Worker Threads: Each worker thread fetches URLs from the frontier, downloads the content, processes the links, and extracts new URLs to be added back to the frontier.
+    Downloader:     Handles the actual HTTP requests to fetch the content of the URLs.
+    Scraper:        Processes the fetched content to extract links, validate them, and check for duplicates.
+    Data Crawler:   Handles data extraction, such as word statistics and page crawled information.
+
+
+Politeness Policy: 
+    Domain Lock:        A lock (domain_lock) is used to enforce the politeness delay for each domain.
+    Last Request Time:  A dictionary (last_request_time) keeps track of the last request time for each domain.
+    Enforce Politeness: Before making a request, the crawler checks the elapsed time since the last request to the same domain and sleeps if necessary to respect the politeness delay.
+
+
+Duplicate Handling: 
+    SimHash Calculation:    The content of each page is hashed using SimHash. Then saved in a json file for future reference checks.
+    Similarity Check:       The hash is compared with previously visited hashes to determine similarity.
+    Threshold:              If the similarity exceeds a predefined threshold (SIMHASH_THRESHOLD 0.8), the page is considered a near-duplicate and skipped.
+
+
+Trap Detection: 
+    Blacklist:          URLs containing certain patterns (e.g., /event/ pages) are blacklisted to avoid infinite loops.
+    Low-Value Links:    Pages with very little content (15 tokens ~1 sentence), are considered low-value and skipped. 
+                        We also considered certain pages, like in gitlab, there's a lot of commit, trees, and blobs that are not useful for our purposes.
+    
+
+Error Handling: 
+    Retries:        The load_or_initialize_json function retries loading JSON files in case of errors.
+    Error Logging:  Errors such as FileNotFoundError, PermissionError, and IOError are logged, and appropriate actions are taken.
+    Default Data:   In case of persistent errors, the crawler falls back to default data formats or local saves within json/class for continuity.
+
+
+URL Normalization: 
+    Trailing Slash Removal:     URLs ending with a slash are normalized by removing the trailing slash.
+    Lowercase Conversion:       URLs are converted to lowercase to avoid case-sensitive duplicates.
+    Hashing:                    URLs are hashed using SHA-256 to create a unique identifier for each URL.
+
+
+Subdomain Identification: 
+    URL Parsing:    The urlparse function is used to extract the domain and subdomain from the URL.
+    Subdomain List: A dictionary (Subdomains_List) keeps track of the subdomains and their counts.
+    Challenges:     We need to do many runs to catch and handle edge cases, such as URLs with spaces in the netloc, capitalization, and other variations.
+
+
+Performance Metrics: 
+    Politeness Compliance:  Ensuring that the politeness delay is respected by looking at the time between requests to the same domain.
+    Optimization:           Optimizations include priority queue multi-threading.
+
+
+What were the biggest challenges you faced during this assignment, and what did you learn from them?
+    The biggest challenge was implementing the politeness policy and ensuring that the crawler adhered to it correctly. 
+    Managing threads and locks to enforce the politeness delay effectively, while also maintaining a high crawl rate, we actually implemented
+    a priority queue to handle different domains at the same time to avoid waiting for a domain to finish before moving to the next one.
+    
+
+How did you test your crawler to ensure it met all the assignment requirements?
+    We tested the crawler by running it with different settings, filters, and configurations
+    Incremental programming, we added features one by one and tested them individually before integrating them into the main crawler
+
+
+Can you describe a specific issue you encountered during the development of your crawler and how you resolved it?
+    I knew everyone will start late, and most likely will crash the server on the few days before the deadline
+    So I started early and had the whole first week to play around and experiment with different settings
