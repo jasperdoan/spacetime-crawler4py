@@ -36,33 +36,29 @@ def scraper(url: str, resp: Response) -> List[str]:
     url = url.lower()
     link_dump = load_or_initialize_json(LINK_DUMP_PATH, LINK_DUMP_STRUCTURE)
     valid_links = []
-    text_visted = text_valid = text_value = ""
 
     # Check if the seed page has already been visited
     seed_visited = url in link_dump['Seed']['Good'] or url in link_dump['Seed']['Bad']
     if seed_visited:
-        text_visted = "\tAlready visited, skipping\n"
+        print("\tAlready visited, skipping\n")
         return []
 
     # Validate the seed page
     seed_valid, seed_reason = is_valid(url)
     link_dump['Seed']['Good' if seed_valid else 'Bad'][url] = seed_reason
     if not seed_valid:
-        text_valid = f"\tIs invalid: {seed_reason}\n"
+        print(f"\tIs invalid: {seed_reason}\n")
         write_json(LINK_DUMP_PATH, link_dump)
         return []
 
     # Check if the link is of low value
     if low_value_link(resp):
-        text_value = "\tLink is of low value, skipping\n"
+        print("\tLink is of low value, skipping\n")
         return []
 
     # Check for similarity
     if dc.is_similar(url, BeautifulSoup(resp.raw_response.content, 'html.parser').text):
         return []
-
-    if text_visted or text_valid or text_value:
-        print(f"\t{url}:\n{text_visted}{text_valid}{text_value}")
 
     # Extract and validate links from the seed page
     links = extract_next_links(url, resp)
